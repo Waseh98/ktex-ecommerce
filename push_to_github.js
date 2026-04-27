@@ -152,7 +152,7 @@ async function pushToGithub() {
     console.log('🚀 Pushing to GitHub (this may take a minute for large files)...');
     const pushResult = await git.push({
       fs,
-      http,
+      http: httpClient,
       dir,
       remote: 'origin',
       ref: 'main',
