@@ -139,7 +139,19 @@ const InventoryPage = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         <header className="bg-white border-b border-gray-100 p-8 flex justify-between items-center shrink-0">
-           <h2 className="text-2xl font-serif text-primary">Inventory Management</h2>
+           <div className="flex items-center space-x-8">
+              <h2 className="text-2xl font-serif text-primary">Inventory Management</h2>
+              <button 
+                onClick={() => {
+                  document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+                  window.location.href = "/admin/login";
+                }}
+                className="flex items-center space-x-2 text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors bg-red-50 px-3 py-1.5 rounded-lg"
+              >
+                <LogOut size={14} />
+                <span>Logout</span>
+              </button>
+           </div>
            <div className="flex items-center space-x-4">
                <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />

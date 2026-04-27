@@ -137,7 +137,7 @@ async function pushToGithub() {
         name: 'Waseh98',
         email: 'waseh98@users.noreply.github.com',
       },
-      message: 'K-TEX: Admin Security + Dynamic Category Navigation\n\n- Implemented professional Admin Login system with middleware protection\n- Secured all /admin routes using cookie-based authentication\n- Added dynamic sub-pages for all header categories and collections\n- Redesigned Top Bar with improved timer visibility and premium layout\n- Fixed Admin Inventory modal overlap and visibility issues\n- Updated global navigation links to support full dynamic routing',
+      message: 'K-TEX: Admin Security + Logout + Dynamic Category Navigation\n\n- Implemented professional Admin Login system with middleware protection\n- Added Logout functionality to the Admin Panel\n- Secured all /admin routes using cookie-based authentication\n- Added dynamic sub-pages for all header categories and collections\n- Redesigned Top Bar with improved timer visibility and premium layout\n- Fixed Admin Inventory modal overlap and visibility issues\n- Updated global navigation links to support full dynamic routing',
     });
     console.log(`   Commit SHA: ${sha.slice(0, 8)}`);
 
