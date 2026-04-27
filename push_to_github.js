@@ -159,6 +159,14 @@ async function pushToGithub() {
       force: true,
       onAuth: () => ({ username: USERNAME, password: TOKEN }),
       onMessage: (msg) => console.log(`   ${msg}`),
+      onProgress: (p) => {
+        if (p.total) {
+          const pct = Math.round((p.loaded / p.total) * 100);
+          if (pct % 10 === 0) console.log(`   Pushing: ${pct}% (${p.loaded}/${p.total} bytes)`);
+        } else {
+          console.log(`   Pushing: ${p.loaded} bytes sent...`);
+        }
+      }
     });
 
     if (pushResult.ok) {
