@@ -1,0 +1,23 @@
+<svg width="800" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="grad" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#701a75" />
+      <stop offset="100%" stop-color="#4a044e" />
+    </radialGradient>
+    <pattern id="pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0 40L40 0H20L0 20M40 40V20L20 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grad)" />
+  <rect width="100%" height="100%" fill="url(#pattern)" />
+  
+  <rect x="50" y="50" width="700" height="1100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+  <rect x="60" y="60" width="680" height="1080" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+  
+  <text x="50%" y="50%" font-family="Georgia, serif" font-size="48" font-style="italic" fill="rgba(255,255,255,0.9)" text-anchor="middle" dominant-baseline="middle" letter-spacing="4">
+    Luxury Pret
+  </text>
+  <text x="50%" y="55%" font-family="Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle" letter-spacing="8" text-transform="uppercase">
+    K-TEX Menswear
+  </text>
+</svg>
