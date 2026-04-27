@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Package, Search, LayoutDashboard, ShoppingCart, Users, Settings, Plus, Edit2, Trash2, X, AlertCircle } from "lucide-react";
+import { Package, Search, LayoutDashboard, ShoppingCart, Users, Settings, Plus, Edit2, Trash2, X, AlertCircle, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 
 const InventoryPage = () => {
+  const router = useRouter();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -212,49 +214,47 @@ const InventoryPage = () => {
 
       {/* Product Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-           <form onSubmit={handleSave} className="bg-white rounded-2xl w-full max-w-2xl relative shadow-2xl overflow-hidden" style={{ height: '85vh' }}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+           <form onSubmit={handleSave} className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: '90vh' }}>
               {/* Header */}
-              <div className="absolute top-0 left-0 right-0 h-20 px-6 border-b border-gray-100 flex justify-between items-center bg-white z-20">
+              <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
                  <h2 className="text-xl font-serif text-primary">{editingProduct ? "Edit Product" : "Add New Product"}</h2>
-                 <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-primary"><X size={24} /></button>
+                 <button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-primary transition-colors"><X size={24} /></button>
               </div>
               
               {/* Form Body - Scrollable */}
-              <div className="absolute top-20 bottom-24 left-0 right-0 p-6 overflow-y-auto z-10">
-                 <div className="grid grid-cols-2 gap-6">
+              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                 <div className="grid grid-cols-2 gap-8">
                        <div className="col-span-2">
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Product Name</label>
-                          <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-secondary" />
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Product Name</label>
+                          <input required type="text" placeholder="Enter product name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
                        </div>
                        <div>
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Price (e.g. 15,000)</label>
-                          <input required type="text" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-secondary" />
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Price (e.g. 15,000)</label>
+                          <input required type="text" placeholder="Price" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
                        </div>
                        <div>
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Stock</label>
-                          <input required type="number" value={formData.stock} onChange={e => setFormData({...formData, stock: parseInt(e.target.value) || 0})} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-secondary" />
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Stock</label>
+                          <input required type="number" placeholder="0" value={formData.stock} onChange={e => setFormData({...formData, stock: parseInt(e.target.value) || 0})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
                        </div>
                        <div>
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Category</label>
-                          <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-secondary" />
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Category</label>
+                          <input type="text" placeholder="e.g. kurtas" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
                        </div>
                        <div>
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Fabric</label>
-                          <input type="text" value={formData.fabric} onChange={e => setFormData({...formData, fabric: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-secondary" />
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Fabric</label>
+                          <input type="text" placeholder="e.g. Raw Silk" value={formData.fabric} onChange={e => setFormData({...formData, fabric: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
                        </div>
                        <div className="col-span-2">
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Product Image</label>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Product Image</label>
                           
                           <div className="flex items-center space-x-6">
-                            <div className="w-24 h-32 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center relative">
+                            <div className="w-24 h-32 bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center relative">
                                {formData.image ? (
-                                  // Removed onError display:none so we can see if it's 404
                                   <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
                                ) : (
                                   <Package className="text-gray-300" size={32} />
                                )}
-                               {/* Loading overlay for image preview */}
                                {uploading && (
                                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
                                      <div className="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></div>
@@ -285,7 +285,6 @@ const InventoryPage = () => {
                                           
                                           if (res.ok) {
                                              const { url } = await res.json();
-                                             // Update state with a timestamp to force browser to re-fetch and bypass caching
                                              setFormData({...formData, image: url});
                                           } else {
                                              alert("Image upload failed");
@@ -298,27 +297,26 @@ const InventoryPage = () => {
                                        }
                                     }}
                                  />
-                                 <label htmlFor="file-upload" className={`inline-flex items-center justify-center px-6 py-3 border-2 border-dashed rounded-xl w-full cursor-pointer transition-colors ${uploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'bg-secondary/5 border-secondary/30 text-secondary hover:bg-secondary/10 hover:border-secondary/50'}`}>
+                                 <label htmlFor="file-upload" className={`inline-flex items-center justify-center px-6 py-4 border-2 border-dashed rounded-xl w-full cursor-pointer transition-colors ${uploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'bg-secondary/5 border-secondary/30 text-secondary hover:bg-secondary/10 hover:border-secondary/50'}`}>
                                     <span className="text-sm font-bold">{uploading ? "Uploading Image..." : "Click here to Upload Image"}</span>
                                  </label>
                               </div>
-                              <p className="text-xs text-gray-400 mt-3">Select a high-quality image. It will upload automatically.</p>
-                              {/* Keep tracking the URL, user can also see it temporarily for debugging */}
-                              <input type="text" readOnly required value={formData.image} placeholder="Image URL will appear here" className="mt-2 w-full text-xs text-gray-400 bg-transparent border-none outline-none" />
+                              <p className="text-xs text-gray-400 mt-3 italic">Select a high-quality image. It will upload automatically.</p>
+                              <input type="text" readOnly required value={formData.image} placeholder="Image URL will appear here" className="mt-2 w-full text-[10px] text-gray-400 bg-transparent border-none outline-none" />
                             </div>
                           </div>
                        </div>
                        <div className="col-span-2">
-                          <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Description</label>
-                          <textarea rows={3} value={formData.desc} onChange={e => setFormData({...formData, desc: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-secondary"></textarea>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Description</label>
+                          <textarea rows={4} placeholder="Product description..." value={formData.desc} onChange={e => setFormData({...formData, desc: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm"></textarea>
                        </div>
                     </div>
-                 </div>
+              </div>
 
               {/* Footer - Fixed */}
-              <div className="absolute bottom-0 left-0 right-0 h-24 px-6 border-t border-gray-100 flex justify-end items-center space-x-4 bg-white z-20">
-                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 font-bold text-gray-500 hover:text-primary">Cancel</button>
-                 <button type="submit" className="bg-secondary text-white px-8 py-3 rounded-lg font-bold hover:bg-primary transition-colors shadow-lg">Save Product</button>
+              <div className="px-8 py-6 border-t border-gray-100 flex justify-end items-center space-x-4 bg-white shrink-0">
+                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 font-bold text-gray-400 hover:text-primary transition-colors">Cancel</button>
+                 <button type="submit" className="bg-secondary text-white px-10 py-3.5 rounded-xl font-bold hover:bg-primary transition-colors shadow-lg shadow-secondary/20">Save Product</button>
               </div>
            </form>
         </div>

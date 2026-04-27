@@ -9,7 +9,6 @@ const categories = [
   { name: "Sherwanis", img: "/images/bestseller-3.svg" },
   { name: "Cufflinks", img: "/images/bestseller-4.svg" },
   { name: "Perfumes", img: "/images/hero-banner-1.svg" },
-  { name: "Kids Boys", img: "/images/hero-banner-2.svg" },
   { name: "Footwear", img: "/images/hero-banner-3.svg" },
   { name: "Accessories", img: "/images/bestseller-1.svg" },
 ];

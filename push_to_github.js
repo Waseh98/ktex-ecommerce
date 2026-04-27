@@ -137,7 +137,7 @@ async function pushToGithub() {
         name: 'Waseh98',
         email: 'waseh98@users.noreply.github.com',
       },
-      message: 'K-TEX: Full-Stack Admin Panel + Local Image Upload System\n\n- Unified product database in scratch/products.json\n- Implemented CRUD API (/api/admin/products) for full inventory control\n- Added Local Image Upload API (/api/admin/upload) with filesystem storage\n- Completely redesigned Admin Inventory UI with real-time image previews\n- Fixed Modal scrolling and button visibility issues with bulletproof absolute positioning\n- Integrated frontend components (OccasionSlider, etc.) with the dynamic backend',
+      message: 'K-TEX: Admin Security + Dynamic Category Navigation\n\n- Implemented professional Admin Login system with middleware protection\n- Secured all /admin routes using cookie-based authentication\n- Added dynamic sub-pages for all header categories and collections\n- Redesigned Top Bar with improved timer visibility and premium layout\n- Fixed Admin Inventory modal overlap and visibility issues\n- Updated global navigation links to support full dynamic routing',
     });
     console.log(`   Commit SHA: ${sha.slice(0, 8)}`);
 

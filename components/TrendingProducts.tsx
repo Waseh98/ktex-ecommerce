@@ -23,13 +23,12 @@ interface Product {
   img?: string;
 }
 
-const categories = ["New Arrivals", "Luxury Pret", "Luxury Formals", "Kidswear", "Unstitched", "Accessories"];
+const categories = ["New Arrivals", "Luxury Pret", "Luxury Formals", "Unstitched", "Accessories"];
 
 const categorySlugMap: Record<string, string> = {
   "New Arrivals": "new-arrivals",
   "Luxury Pret": "luxury-pret",
   "Luxury Formals": "luxury-formals",
-  "Kidswear": "kidswear",
   "Unstitched": "unstitched",
   "Accessories": "accessories",
 };
