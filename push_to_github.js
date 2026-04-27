@@ -64,7 +64,7 @@ async function getAllFiles(dirPath, basePath = '') {
 const httpClient = {
   async request({ url, method, headers, body, onProgress }) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 300000); // 5 min timeout
+    const timeout = setTimeout(() => controller.abort(), 3600000); // 1 hour timeout
     
     try {
       const res = await http.request({ url, method, headers, body, onProgress, signal: controller.signal });
