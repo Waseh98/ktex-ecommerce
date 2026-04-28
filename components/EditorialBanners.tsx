@@ -31,13 +31,13 @@ const EditorialBanners = () => {
     <section ref={sectionRef} className="bg-white">
       {/* Section 5: Asymmetric Split */}
       <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] h-auto md:h-[90vh]">
-        <Link href="/collection/new-in" className="relative group overflow-hidden hover-zoom reveal-hidden">
+        <Link href="/collection/new-in" className="relative group overflow-hidden hover-zoom reveal-hidden h-[50vh] md:h-auto">
           <img src="/images/hero-banner-1.svg" alt="Unstitched" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-12">
             <h3 className="text-white text-4xl font-serif">Men's Unstitched</h3>
           </div>
         </Link>
-        <div className="grid grid-rows-2 h-full">
+        <div className="grid grid-rows-2 h-[50vh] md:h-full">
            <Link href="/collection/new-in" className="relative group overflow-hidden hover-zoom reveal-hidden">
               <img src="/images/bestseller-3.svg" alt="RTW" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-10">

@@ -1,9 +1,30 @@
-const git = require('isomorphic-git');
-const http = require('isomorphic-git/http/node');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-const dir = process.cwd();
+let git, http;
+try {
+  git = require('isomorphic-git');
+  http = require('isomorphic-git/http/node');
+} catch (e) {
+  console.log('📦 Installing required dependencies (isomorphic-git)... this will just take a moment.');
+  try {
+    const npmPath = fs.existsSync("C:\\Program Files\\nodejs\\npm.cmd") 
+      ? '"C:\\Program Files\\nodejs\\npm.cmd"' 
+      : 'npm';
+    execSync(`${npmPath} install isomorphic-git`, { stdio: 'inherit' });
+    git = require('isomorphic-git');
+    http = require('isomorphic-git/http/node');
+  } catch (err) {
+    console.error('\n❌ Failed to install dependencies automatically.');
+    console.error('Please run this command first: "C:\\Program Files\\nodejs\\npm.cmd" install isomorphic-git');
+    process.exit(1);
+  }
+}
+
+// ALWAYS use the directory where this script is located, 
+// even if the user runs it from the wrong folder.
+const dir = __dirname;
 
 // Patterns from .gitignore to skip
 const IGNORE_PATTERNS = [
@@ -78,9 +99,9 @@ const httpClient = {
 };
 
 async function pushToGithub() {
-  const REPO_URL = 'https://github.com/Waseh98/ktex-ecommerce.git';
   const USERNAME = 'Waseh98';
   const TOKEN = process.env.GITHUB_TOKEN || process.argv[2];
+  const REPO_URL = `https://${USERNAME}:${TOKEN}@github.com/Waseh98/ktex-ecommerce.git`;
 
   if (!TOKEN) {
     console.error('\n❌ ERROR: No GitHub token provided!');
@@ -107,12 +128,15 @@ async function pushToGithub() {
       // branch may already exist
     }
 
-    // 3. Collect all files recursively
+    // 3. Collect all files recursively (SKIPPED FOR RETRY)
+    /*
     console.log('📂 Scanning project files...');
     const allFiles = await getAllFiles(dir);
     console.log(`   Found ${allFiles.length} files to commit.`);
+    */
 
-    // 4. Stage all files
+    // 4. Stage all files (SKIPPED FOR RETRY)
+    /*
     console.log('📦 Staging files...');
     let staged = 0;
     for (const filepath of allFiles) {
@@ -127,8 +151,10 @@ async function pushToGithub() {
       }
     }
     console.log(`   ✅ Staged ${staged} files.`);
+    */
 
-    // 5. Commit
+    // 5. Commit (SKIPPED FOR RETRY - ALREADY COMMITTED LOCALLY)
+    /*
     console.log('💾 Creating commit...');
     const sha = await git.commit({
       fs,
@@ -140,6 +166,7 @@ async function pushToGithub() {
       message: 'K-TEX: Admin Security + Logout + Dynamic Category Navigation\n\n- Implemented professional Admin Login system with middleware protection\n- Added Logout functionality to the Admin Panel\n- Secured all /admin routes using cookie-based authentication\n- Added dynamic sub-pages for all header categories and collections\n- Redesigned Top Bar with improved timer visibility and premium layout\n- Fixed Admin Inventory modal overlap and visibility issues\n- Updated global navigation links to support full dynamic routing',
     });
     console.log(`   Commit SHA: ${sha.slice(0, 8)}`);
+    */
 
     // 6. Add remote
     console.log('🔗 Setting remote origin...');
@@ -180,6 +207,8 @@ async function pushToGithub() {
 
   } catch (err) {
     console.error('\n❌ Error:', err.message);
+    console.error('Full Error:', JSON.stringify(err, null, 2));
+    console.error('Stack:', err.stack);
     if (err.message.includes('401') || err.message.includes('403')) {
       console.error('\n💡 Authentication failed. Make sure your PAT is valid and has "repo" scope.');
     }

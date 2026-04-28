@@ -7,9 +7,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const BrandStatement = () => {
-  const textRef = useRef(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
+    if (!textRef.current) return;
     const chars = textRef.current.innerText.split("");
     textRef.current.innerHTML = chars
       .map((char) => `<span class="char opacity-0 inline-block">${char === " " ? "&nbsp;" : char}</span>`)

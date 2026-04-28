@@ -29,7 +29,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onDetected, onClose }) 
             readers: ["ean_reader", "ean_8_reader", "code_128_reader", "code_39_reader"],
           },
         },
-        (err) => {
+        (err: any) => {
           if (err) {
             console.error(err);
             setError("Could not access camera. Please ensure you have given permission.");
@@ -39,7 +39,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onDetected, onClose }) 
         }
       );
 
-      Quagga.onDetected((data) => {
+      Quagga.onDetected((data: any) => {
         if (data.codeResult && data.codeResult.code) {
           onDetected(data.codeResult.code);
           Quagga.stop();

@@ -15,20 +15,58 @@ export async function GET(req: Request) {
 
     let filtered = [...products];
 
+    // Filter by slug (single product lookup)
+    const slug = searchParams.get("slug");
+    if (slug) {
+      filtered = filtered.filter(
+        (p: any) => p.slug === slug || p.id?.toString() === slug
+      );
+      return NextResponse.json(filtered);
+    }
+
     // Filter by category slug
     const category = searchParams.get("category");
     if (category) {
-      filtered = filtered.filter(
-        (p: any) =>
-          p.category === category ||
+      filtered = filtered.filter((p: any) => {
+        if (!p.category) return p.tags?.includes(category);
+        
+        const pCat = p.category.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/s$/, "");
+        const reqCat = category.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/s$/, "");
+        
+        return (
+          pCat === reqCat ||
+          reqCat.includes(pCat) ||
+          pCat.includes(reqCat) ||
           p.tags?.includes(category)
-      );
+        );
+      });
     }
 
-    // Filter by tag (e.g., bestseller)
+    // Filter by tag (e.g., bestseller, new-arrivals, sale)
     const tag = searchParams.get("tag");
     if (tag) {
       filtered = filtered.filter((p: any) => p.tags?.includes(tag));
+    }
+
+    // Filter by size
+    const size = searchParams.get("size");
+    if (size) {
+      const sizes = size.split(",");
+      filtered = filtered.filter((p: any) =>
+        p.sizes?.some((s: string) => sizes.includes(s))
+      );
+    }
+
+    // Filter by price range
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    if (minPrice || maxPrice) {
+      filtered = filtered.filter((p: any) => {
+        const price = parseInt(p.price.replace(/,/g, ""));
+        if (minPrice && price < parseInt(minPrice)) return false;
+        if (maxPrice && price > parseInt(maxPrice)) return false;
+        return true;
+      });
     }
 
     // Sort

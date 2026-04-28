@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import AnnouncementBar from "@/components/AnnouncementBar";
 import { useCartStore } from "@/store/useCartStore";
 import { ChevronRight, CreditCard, Truck, CheckCircle2, ArrowLeft } from "lucide-react";
 import Link from "next/link";

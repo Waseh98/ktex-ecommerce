@@ -1,15 +1,36 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { PLACEHOLDER_PRODUCTS } from "@/lib/constants";
 
 const PRODUCTS_PATH = path.join(process.cwd(), "scratch", "products.json");
 
+function ensureScratchDir() {
+  const dir = path.dirname(PRODUCTS_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
 function getProducts() {
-  if (!fs.existsSync(PRODUCTS_PATH)) return [];
-  return JSON.parse(fs.readFileSync(PRODUCTS_PATH, "utf8"));
+  ensureScratchDir();
+  if (!fs.existsSync(PRODUCTS_PATH)) {
+    // Seed with placeholder products on first access
+    const seedProducts = PLACEHOLDER_PRODUCTS.map((p) => ({
+      ...p,
+      image: p.images?.[0] || "",
+      hoverImage: p.images?.[1] || "",
+      desc: p.description || "",
+    }));
+    saveProducts(seedProducts);
+    return seedProducts;
+  }
+  const data = JSON.parse(fs.readFileSync(PRODUCTS_PATH, "utf8"));
+  return data;
 }
 
 function saveProducts(products: any) {
+  ensureScratchDir();
   fs.writeFileSync(PRODUCTS_PATH, JSON.stringify(products, null, 2));
 }
 

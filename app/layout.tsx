@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -13,13 +8,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "K-TEX | Premium Pakistani Ethnic Wear",
-  description: "Experience the elegance of culturally rooted, modern South Asian luxury with K-TEX.",
+  title: "K-TEX | Premium Pakistani Menswear",
+  description: "Experience the elegance of culturally rooted, modern South Asian luxury with K-TEX. Premium shirts, polos, trousers, and more.",
 };
 
 import AnnouncementBar from "@/components/AnnouncementBar";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import AuthModal from "@/components/AuthModal";
+import LayoutShell from "@/components/LayoutShell";
 
 export default function RootLayout({
   children,
@@ -27,18 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${playfair.variable} ${inter.variable} antialiased`}
-    >
-      <body className="min-h-screen flex flex-col bg-ivory text-primary">
-        <CartDrawer />
-        <AuthModal />
-        {children}
+    <html lang="en" className={`${inter.variable}`}>
+      <body className="min-h-screen flex flex-col bg-white text-primary antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <LayoutShell>
+          {children}
+        </LayoutShell>
       </body>
     </html>
   );
 }
-
-
-

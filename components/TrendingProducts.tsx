@@ -77,7 +77,7 @@ const ExpandedView = ({
 
       {/* Expanding panel */}
       <div
-        className="absolute bg-white overflow-hidden"
+        className="absolute bg-white overflow-y-auto md:overflow-hidden"
         style={{
           top: isExpanded ? "0px" : `${originRect.top}px`,
           left: isExpanded ? "0px" : `${originRect.left}px`,
@@ -99,7 +99,7 @@ const ExpandedView = ({
           }}
         >
           {/* Left: Product Image */}
-          <div className="relative w-full md:w-[55%] h-[45vh] md:h-full bg-[#f5f3f0] overflow-hidden">
+          <div className="relative w-full md:w-[55%] h-[45vh] md:h-full bg-[#f5f3f0] overflow-hidden flex-shrink-0">
             <img
               src={product.img}
               alt={product.name}
@@ -178,7 +178,7 @@ const ExpandedView = ({
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    addItem({ ...product, size: "M", color: "Original", quantity: 1, image: product.img });
+                    addItem({ ...product, size: "M", color: "Original", quantity: 1, image: product.img || "" });
                     handleClose();
                   }}
                   className="flex-1 bg-secondary text-white text-[10px] font-bold uppercase tracking-[0.2em] py-4 flex items-center justify-center gap-3 hover:bg-primary transition-colors duration-300"

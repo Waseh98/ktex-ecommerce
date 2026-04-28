@@ -1,74 +1,43 @@
 "use client";
-
 import React, { useState } from "react";
-import AnnouncementBar from "@/components/AnnouncementBar";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Link from "next/link";
 import { Plus, Minus } from "lucide-react";
 
 const faqs = [
-  {
-    question: "What is your return policy?",
-    answer: "We offer a 14-day return policy for all unworn garments with original tags attached. Please note that custom-tailored items are non-returnable unless defective."
-  },
-  {
-    question: "How do I track my order?",
-    answer: "Once your order is shipped, you will receive a tracking number via email. You can also track your order directly on our 'Track Order' page."
-  },
-  {
-    question: "Do you offer international shipping?",
-    answer: "Yes, we ship to over 50 countries worldwide. Shipping costs and delivery times vary by location and will be calculated at checkout."
-  },
-  {
-    question: "How should I care for my K-TEX garments?",
-    answer: "Most of our ethnic wear requires dry cleaning. Please refer to our 'Cloth Care' page for detailed instructions for different fabrics like silk, velvet, and lawn."
-  }
+  { question: "What is your return policy?", answer: "We offer a 7-day easy exchange and return policy for all unworn garments with original tags attached. Please visit our Exchange & Return Policy page for details." },
+  { question: "How do I track my order?", answer: "Once your order is shipped, you will receive a tracking number via email. You can also track your order on our 'Track Order' page." },
+  { question: "Do you offer international shipping?", answer: "Yes, international shipping is available on request. Please contact us for rates and delivery timelines." },
+  { question: "What sizes do you offer?", answer: "We offer sizes from S to XXL. Please check our Size Guide for detailed measurements to find your perfect fit." },
+  { question: "What payment methods do you accept?", answer: "We accept Cash on Delivery, Bank Transfer, JazzCash, and EasyPaisa." },
+  { question: "How should I care for my garments?", answer: "Most of our garments require gentle machine wash or dry cleaning. Please check the care label on each garment for specific instructions." },
 ];
 
-const FAQsPage = () => {
+export default function FAQsPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-
   return (
-    <main className="min-h-screen">
-      <AnnouncementBar />
-      <Header />
-      
-      <div className="pt-40 pb-32 bg-ivory">
-        <div className="container mx-auto px-4 md:px-8 max-w-3xl">
-           <p className="text-secondary font-bold uppercase tracking-[0.4em] mb-6 text-center">Support</p>
-           <h1 className="text-4xl md:text-5xl font-serif mb-16 text-center">Frequently Asked Questions</h1>
-           
-           <div className="space-y-4">
-              {faqs.map((faq, idx) => (
-                <div key={idx} className="bg-white shadow-sm border border-gray-50">
-                   <button 
-                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                     className="w-full p-6 flex justify-between items-center text-left hover:bg-zinc-50 transition-colors"
-                   >
-                      <span className="text-sm font-bold uppercase tracking-widest text-primary">{faq.question}</span>
-                      {openIndex === idx ? <Minus size={16} /> : <Plus size={16} />}
-                   </button>
-                   <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === idx ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                      <div className="px-6 pb-6 text-sm text-gray-500 leading-relaxed">
-                         {faq.answer}
-                      </div>
-                   </div>
-                </div>
-              ))}
-           </div>
-
-           <div className="mt-20 text-center">
-              <p className="text-gray-400 text-sm mb-6 font-serif italic">Still have questions?</p>
-              <button className="px-8 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-widest hover:bg-secondary transition-all">
-                 Contact Support
-              </button>
-           </div>
-        </div>
+    <div className="container-wide py-12 max-w-3xl">
+      <nav className="flex items-center gap-2 text-[11px] text-gray-400 mb-6">
+        <Link href="/" className="hover:text-secondary">Home</Link><span>/</span>
+        <span className="text-primary">FAQs</span>
+      </nav>
+      <h1 className="text-2xl md:text-3xl font-bold text-primary mb-8">Frequently Asked Questions</h1>
+      <div className="space-y-3">
+        {faqs.map((faq, idx) => (
+          <div key={idx} className="border border-gray-100">
+            <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full px-6 py-4 flex justify-between items-center text-left group">
+              <span className="text-[13px] font-bold text-primary group-hover:text-secondary transition-colors">{faq.question}</span>
+              {openIndex === idx ? <Minus size={14} /> : <Plus size={14} />}
+            </button>
+            <div className={`overflow-hidden transition-all duration-300 ${openIndex === idx ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className="px-6 pb-4 text-[13px] text-gray-500 leading-relaxed">{faq.answer}</div>
+            </div>
+          </div>
+        ))}
       </div>
-
-      <Footer />
-    </main>
+      <div className="mt-12 text-center">
+        <p className="text-[13px] text-gray-400 mb-4">Still have questions?</p>
+        <Link href="/contact" className="inline-block bg-primary text-white px-8 py-3 text-[11px] font-bold uppercase tracking-[0.15em] hover:bg-secondary transition-colors">Contact Support</Link>
+      </div>
+    </div>
   );
-};
-
-export default FAQsPage;
+}
