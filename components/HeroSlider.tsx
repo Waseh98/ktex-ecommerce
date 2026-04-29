@@ -63,9 +63,12 @@ const HeroSlider = () => {
       .catch(() => {});
   }, []);
 
+  const validSlides = slides.filter(s => s.image && s.image.trim() !== "");
+
   return (
-    <section className="relative w-full" style={{ height: "clamp(400px, 70vh, 700px)" }}>
+    <section className="relative w-full overflow-hidden" style={{ height: "clamp(400px, 70vh, 700px)" }}>
       <Swiper
+        key={validSlides.length}
         modules={[Autoplay, Pagination, EffectFade]}
         effect="fade"
         fadeEffect={{ crossFade: true }}
@@ -75,39 +78,41 @@ const HeroSlider = () => {
           renderBullet: (index: number, className: string) =>
             `<span class="${className}" style="width:${index === activeIndex ? '24px' : '8px'};height:8px;border-radius:4px;transition:all 0.3s"></span>`,
         }}
-        loop
+        loop={validSlides.length > 1}
+        observer={true}
+        observeParents={true}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-        className="w-full h-full hero-slider"
+        className="w-full h-full"
       >
-        {slides.map((slide, index) => (
+        {validSlides.map((slide, index) => (
           <SwiperSlide key={slide.id || index}>
             <div className="relative w-full h-full">
               {/* Background Image */}
               <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[5000ms] ease-linear scale-105 group-hover:scale-100"
                 style={{ backgroundImage: `url(${slide.image})` }}
               />
               {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-black/30" />
 
               {/* Content */}
-              <div className="absolute inset-0 flex items-end pb-20 md:items-center md:pb-0">
-                <div className="container-wide w-full">
-                  <div className="max-w-xl">
+              <div className="absolute inset-0 flex items-center justify-center text-center">
+                <div className="container-wide w-full px-4">
+                  <div className="max-w-3xl mx-auto">
                     <h2
-                      className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 leading-tight"
-                      style={{ textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}
+                      className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight uppercase tracking-tight"
+                      style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
                     >
                       {slide.title}
                     </h2>
-                    <p className="text-white/80 text-sm md:text-lg mb-6 max-w-md">
+                    <p className="text-white/90 text-sm md:text-xl mb-8 max-w-2xl mx-auto font-medium">
                       {slide.subtitle}
                     </p>
                     <Link
                       href={slide.link || "/"}
-                      className="inline-block bg-secondary text-white px-8 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-primary transition-all duration-300"
+                      className="inline-block bg-white text-primary px-10 py-4 text-[12px] font-bold uppercase tracking-[0.2em] hover:bg-secondary hover:text-white transition-all duration-300 rounded-full shadow-xl"
                     >
-                      Shop Now
+                      Shop the Collection
                     </Link>
                   </div>
                 </div>
@@ -116,25 +121,6 @@ const HeroSlider = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-
-      {/* Critical CSS fix: ensure non-active slides are fully hidden */}
-      <style jsx global>{`
-        .hero-slider .swiper-slide {
-          opacity: 0 !important;
-          visibility: hidden;
-          transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
-        .hero-slider .swiper-slide-active {
-          opacity: 1 !important;
-          visibility: visible;
-        }
-        .hero-slider .swiper-slide:not(.swiper-slide-active) * {
-          opacity: 0;
-        }
-        .hero-slider .swiper-slide-active * {
-          opacity: 1;
-        }
-      `}</style>
     </section>
   );
 };
