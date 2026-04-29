@@ -84,14 +84,55 @@ const AdminSettings = () => {
     }
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1920;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Compress quality to 0.7 to keep payload small
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressedBase64);
+        };
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
   const handleFileUpload = async (file: File, callback: (url: string) => void) => {
     if (file.type.startsWith('video/') && file.size > 15 * 1024 * 1024) {
-      alert("Video file is too large! Please keep it under 15MB for best performance.");
+      alert("Video file is too large! Please keep it under 15MB.");
       return;
     }
 
     setUploading(true);
     try {
+      // If it's an image, compress it on client side first
+      if (file.type.startsWith('image/')) {
+        const compressedUrl = await compressImage(file);
+        callback(compressedUrl);
+        setUploading(false);
+        return;
+      }
+
+      // For videos or other files, use the upload API
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/admin/upload", {
