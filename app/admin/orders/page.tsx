@@ -44,10 +44,14 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "PAID": return "text-green-600 bg-green-50";
-      case "PENDING_PAYMENT": return "text-amber-600 bg-amber-50";
-      case "FAILED": return "text-red-600 bg-red-50";
-      default: return "text-gray-600 bg-gray-50";
+      case "PAID": return "text-green-600 bg-green-50 border-green-200";
+      case "PENDING_PAYMENT": return "text-amber-600 bg-amber-50 border-amber-200";
+      case "FAILED": return "text-red-600 bg-red-50 border-red-200";
+      case "PROCESSING": return "text-blue-600 bg-blue-50 border-blue-200";
+      case "SHIPPED": return "text-purple-600 bg-purple-50 border-purple-200";
+      case "DELIVERED": return "text-emerald-600 bg-emerald-50 border-emerald-200";
+      case "CANCELLED": return "text-gray-600 bg-gray-50 border-gray-200";
+      default: return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
@@ -156,14 +160,16 @@ const AdminDashboard = () => {
     printWindow.print();
   };
 
-  const updateNotes = async (orderId: string, notes: string) => {
+  const updateOrder = async (orderId: string, updates: { notes?: string, status?: string }) => {
     try {
-      await fetch("/api/admin/orders", {
+      const res = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, notes }),
+        body: JSON.stringify({ orderId, ...updates }),
       });
-      fetchOrders();
+      if (res.ok) {
+        fetchOrders();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -290,15 +296,25 @@ const AdminDashboard = () => {
                                type="text" 
                                placeholder="Add a customer note..." 
                                defaultValue={order.notes}
-                               onBlur={(e) => updateNotes(order.orderId, e.target.value)}
+                               onBlur={(e) => updateOrder(order.orderId, { notes: e.target.value })}
                                className="w-full bg-transparent border-b border-transparent hover:border-gray-200 focus:border-secondary focus:outline-none text-[10px] py-1 transition-all"
                             />
                          </td>
                          <td className="px-8 py-6 text-xs font-bold text-primary">PKR {order.total}</td>
                          <td className="px-8 py-6">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${getStatusColor(order.status)}`}>
-                               {order.status}
-                            </span>
+                            <select 
+                               value={order.status}
+                               onChange={(e) => updateOrder(order.orderId, { status: e.target.value })}
+                               className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border focus:outline-none transition-all cursor-pointer ${getStatusColor(order.status)}`}
+                            >
+                               <option value="PENDING_PAYMENT">Pending Payment</option>
+                               <option value="PAID">Paid</option>
+                               <option value="PROCESSING">Processing</option>
+                               <option value="SHIPPED">Shipped</option>
+                               <option value="DELIVERED">Delivered</option>
+                               <option value="CANCELLED">Cancelled</option>
+                               <option value="FAILED">Failed</option>
+                            </select>
                          </td>
                           <td className="px-8 py-6 text-right">
                              <div className="flex items-center justify-end space-x-2">

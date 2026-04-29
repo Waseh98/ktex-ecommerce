@@ -27,12 +27,16 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const { orderId, notes } = await req.json();
+    const { orderId, notes, status } = await req.json();
     const ordersCollection = await getCollection();
+
+    const updateData: any = {};
+    if (notes !== undefined) updateData.notes = notes;
+    if (status !== undefined) updateData.status = status;
 
     const result = await ordersCollection.updateOne(
       { orderId: orderId },
-      { $set: { notes: notes } }
+      { $set: updateData }
     );
 
     if (result.matchedCount === 0) {
@@ -41,8 +45,8 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Admin Notes Update Error:", error);
-    return NextResponse.json({ error: "Failed to update notes" }, { status: 500 });
+    console.error("Admin Order Update Error:", error);
+    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
   }
 }
 export async function DELETE(req: Request) {
