@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
 
 export async function POST(req: Request) {
   try {
@@ -14,16 +12,11 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create unique filename
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const filename = `${uniqueSuffix}-${file.name.replace(/\s+/g, '-')}`;
-    
-    // Save to public/uploads
-    const filepath = path.join(process.cwd(), "public", "uploads", filename);
-    await writeFile(filepath, buffer);
-    
-    // Return the public URL
-    const fileUrl = `/uploads/${filename}`;
+    // Convert to Base64 data URL
+    // This is a temporary fix for Vercel because Vercel doesn't allow writing to the local file system.
+    // For a production app, we recommend using Vercel Blob, Cloudinary, or AWS S3.
+    const base64Image = buffer.toString('base64');
+    const fileUrl = `data:${file.type};base64,${base64Image}`;
 
     return NextResponse.json({ url: fileUrl, success: true }, { status: 201 });
   } catch (error) {
