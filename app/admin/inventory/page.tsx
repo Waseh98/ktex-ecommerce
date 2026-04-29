@@ -122,6 +122,37 @@ const InventoryPage = () => {
     setIsModalOpen(true);
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200; 
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(compressedBase64);
+        };
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
   const filteredItems = items
     .filter(item => item && typeof item === 'object')
     .filter(item => 
@@ -365,22 +396,10 @@ const InventoryPage = () => {
                                              
                                              setUploading(true);
                                              try {
-                                                const uploadData = new FormData();
-                                                uploadData.append("file", file);
-                                                
-                                                const res = await fetch("/api/admin/upload", {
-                                                   method: "POST",
-                                                   body: uploadData,
-                                                });
-                                                
-                                                if (res.ok) {
-                                                   const { url } = await res.json();
-                                                   const newImages = [...formData.images];
-                                                   newImages[index] = url;
-                                                   setFormData({...formData, images: newImages});
-                                                } else {
-                                                   alert("Image upload failed");
-                                                }
+                                                const compressedUrl = await compressImage(file);
+                                                const newImages = [...formData.images];
+                                                newImages[index] = compressedUrl;
+                                                setFormData({...formData, images: newImages});
                                              } catch (err) {
                                                 console.error("Upload error", err);
                                                 alert("Image upload error");

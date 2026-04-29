@@ -699,8 +699,148 @@ const AdminSettings = () => {
                  </div>
               </div>
            </section>
+           {/* Shop the Look Management */}
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm mt-8">
+              <div className="flex items-center space-x-3 mb-8">
+                 <ShoppingCart className="text-secondary" size={20} />
+                 <h3 className="font-serif text-xl">Shop The Look</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                 <div className="space-y-6">
+                    <div className="aspect-[4/5] bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center relative overflow-hidden group">
+                       {settings.shopTheLook?.image ? (
+                          <>
+                             <img src={settings.shopTheLook.image} className="w-full h-full object-cover" />
+                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="relative">
+                                   <input 
+                                     type="file" 
+                                     className="absolute inset-0 opacity-0 cursor-pointer" 
+                                     onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                        setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), image: url}});
+                                     })}
+                                   />
+                                   <button className="bg-white text-primary p-2 rounded-full shadow-lg">
+                                      <Upload size={16} />
+                                   </button>
+                                </div>
+                             </div>
+                          </>
+                       ) : (
+                          <div className="text-center p-8">
+                             <ImageIcon size={32} className="text-gray-300 mx-auto mb-4" />
+                             <input 
+                               type="file" 
+                               className="absolute inset-0 opacity-0 cursor-pointer" 
+                               onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                  setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), image: url}});
+                               })}
+                             />
+                             <span className="text-xs text-gray-400 font-bold uppercase">Upload Lifestyle Image</span>
+                          </div>
+                       )}
+                    </div>
+                 </div>
+
+                 <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <div className="col-span-full">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Section Title</label>
+                          <input 
+                            placeholder="Shop the Look" 
+                            value={settings.shopTheLook?.title || ""}
+                            onChange={e => setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), title: e.target.value}})}
+                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Tag/Label</label>
+                          <input 
+                            placeholder="Curated Style" 
+                            value={settings.shopTheLook?.label || ""}
+                            onChange={e => setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), label: e.target.value}})}
+                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Subtitle</label>
+                          <input 
+                            placeholder="Summer Essentials" 
+                            value={settings.shopTheLook?.subtitle || ""}
+                            onChange={e => setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), subtitle: e.target.value}})}
+                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                          />
+                       </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-gray-100">
+                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">Featured Products (Max 2)</p>
+                       <div className="space-y-4">
+                          {[0, 1].map((pIdx) => (
+                             <div key={pIdx} className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                                <div className="flex items-center gap-4">
+                                   <div className="w-16 h-16 bg-white rounded border border-gray-200 flex items-center justify-center relative shrink-0 overflow-hidden">
+                                      {settings.shopTheLook?.products?.[pIdx]?.image ? (
+                                         <img src={settings.shopTheLook.products[pIdx].image} className="w-full h-full object-cover" />
+                                      ) : (
+                                         <ImageIcon size={16} className="text-gray-300" />
+                                      )}
+                                      <input 
+                                         type="file" 
+                                         className="absolute inset-0 opacity-0 cursor-pointer" 
+                                         onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                            const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                            products[pIdx].image = url;
+                                            setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                         })}
+                                      />
+                                   </div>
+                                   <div className="flex-1 space-y-2">
+                                      <input 
+                                         placeholder="Product Name" 
+                                         value={settings.shopTheLook?.products?.[pIdx]?.name || ""}
+                                         onChange={e => {
+                                            const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                            products[pIdx].name = e.target.value;
+                                            setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                         }}
+                                         className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs"
+                                      />
+                                      <div className="grid grid-cols-2 gap-2">
+                                         <input 
+                                            placeholder="Price (e.g. Rs. 5,000)" 
+                                            value={settings.shopTheLook?.products?.[pIdx]?.price || ""}
+                                            onChange={e => {
+                                               const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                               products[pIdx].price = e.target.value;
+                                               setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                            }}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs"
+                                         />
+                                         <input 
+                                            placeholder="Link (/product/slug)" 
+                                            value={settings.shopTheLook?.products?.[pIdx]?.link || ""}
+                                            onChange={e => {
+                                               const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                               products[pIdx].link = e.target.value;
+                                               setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                            }}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs"
+                                         />
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </section>
         </div>
       </main>
+
     </div>
   );
 };
