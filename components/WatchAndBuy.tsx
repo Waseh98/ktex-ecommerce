@@ -8,7 +8,7 @@ const WatchAndBuy = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch("/api/admin/homepage");
+        const res = await fetch("/api/admin/homepage", { cache: 'no-store' });
         const data = await res.json();
         if (data.videoUrl) setVideoUrl(data.videoUrl);
       } catch (err) {

@@ -11,7 +11,7 @@ const AnnouncementBar = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch("/api/admin/homepage");
+        const res = await fetch("/api/admin/homepage", { cache: 'no-store' });
         const data = await res.json();
         if (data.announcement) setMessage(data.announcement);
       } catch (err) {

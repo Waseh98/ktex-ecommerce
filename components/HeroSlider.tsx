@@ -21,7 +21,7 @@ const HeroSlider = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    fetch("/api/admin/homepage")
+    fetch("/api/admin/homepage", { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         if (data?.heroSlides?.length) {
