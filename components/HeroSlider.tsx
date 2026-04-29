@@ -24,7 +24,7 @@ const HeroSlider = () => {
     fetch("/api/admin/homepage", { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.heroSlides?.length) {
+        if (data?.heroSlides) {
           // Map to ensure all required fields exist to prevent crashes
           const mappedSlides = data.heroSlides.map((s: any, idx: number) => ({
             id: s.id || idx,

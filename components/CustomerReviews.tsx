@@ -17,15 +17,6 @@ interface Review {
   date: string;
 }
 
-const fallbackReviews: Review[] = [
-  { id: 1, name: "Anonymous", rating: 5, text: "Brumano products are of outstanding quality and are truly worth the price.", product: "Charcoal Bomber Jacket", date: "2026-03-15" },
-  { id: 2, name: "Umair Younas", rating: 5, text: "A real brand. Experience from unboxing to wearing was good. Recommended", product: "", date: "2026-03-10" },
-  { id: 3, name: "Muhammad Abdullah Khan", rating: 5, text: "Great fabric, great color and perfect size", product: "", date: "2026-02-28" },
-  { id: 4, name: "Subhan Ayaz", rating: 5, text: "Best quality and budget", product: "", date: "2026-02-20" },
-  { id: 5, name: "Mohammad Akabir", rating: 5, text: "Excellent quality.", product: "", date: "2026-02-15" },
-  { id: 6, name: "Obaid", rating: 4, text: "Good buy 👍", product: "", date: "2026-02-10" },
-];
-
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex gap-0.5">
     {[1, 2, 3, 4, 5].map((i) => (
@@ -39,19 +30,23 @@ const StarRating = ({ rating }: { rating: number }) => (
 );
 
 const CustomerReviews = () => {
-  const [reviews, setReviews] = useState<Review[]>(fallbackReviews);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/reviews")
+    fetch("/api/admin/reviews", { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           const visible = data.filter((r: any) => r.visible !== false);
-          if (visible.length > 0) setReviews(visible);
+          setReviews(visible);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading || reviews.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20 bg-white">

@@ -3,37 +3,28 @@
 import React from "react";
 import Link from "next/link";
 
-const categories = [
-  {
-    label: "Shirts",
-    slug: "mens-shirts",
-    image: "https://shopbrumano.com/cdn/shop/files/2_422bbc91-79f1-4967-9610-cd0aa11ada83.jpg?v=1744893498&width=600",
-  },
-  {
-    label: "Polos",
-    slug: "mens-polos",
-    image: "https://shopbrumano.com/cdn/shop/files/1_e1a23c26-0c72-4c0a-af7e-e8cb1e95e0ab.jpg?v=1745497979&width=600",
-  },
-  {
-    label: "Trousers",
-    slug: "mens-trousers",
-    image: "https://shopbrumano.com/cdn/shop/files/1_7e8f19a8-68ec-43c5-87dd-c8c17ca1b40e.jpg?v=1745326587&width=600",
-  },
-  {
-    label: "T-Shirts",
-    slug: "mens-tshirts",
-    image: "https://shopbrumano.com/cdn/shop/files/1_5fecb4c6-4b32-40ad-bd0c-8ab3f67e8c12.jpg?v=1745411287&width=600",
-  },
-];
-
 const CategoryTiles = () => {
+  const [categories, setCategories] = useState<{label: string, slug: string, image: string}[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/homepage", { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.categoryTiles) setCategories(data.categoryTiles);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || categories.length === 0) return null;
+
   return (
     <section className="py-12 md:py-16 bg-white">
       <div className="container-wide">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {categories.map((cat) => (
+          {categories.map((cat, idx) => (
             <Link
-              key={cat.slug}
+              key={idx}
               href={`/collection/${cat.slug}`}
               className="group relative aspect-[3/4] overflow-hidden"
             >

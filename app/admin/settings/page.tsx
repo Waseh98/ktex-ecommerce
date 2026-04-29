@@ -15,6 +15,8 @@ const AdminSettings = () => {
     announcement: "",
     videoUrl: "",
     heroSlides: [] as { image: string, title: string, subtitle: string, link: string }[],
+    brandStatement: "",
+    categoryTiles: [] as { label: string, slug: string, image: string }[],
     featuredCategories: [] as string[],
   });
 
@@ -24,13 +26,15 @@ const AdminSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("/api/admin/homepage");
+      const res = await fetch("/api/admin/homepage", { cache: 'no-store' });
       const data = await res.json();
       if (data && data.type === "homepage") {
         setSettings({
           announcement: data.announcement || "",
           videoUrl: data.videoUrl || "",
           heroSlides: data.heroSlides || [],
+          brandStatement: data.brandStatement || "Rooted in heritage, designed for the future. Every stitch at K-TEX tells a story of artisanal excellence and modern luxury.",
+          categoryTiles: data.categoryTiles || [],
           featuredCategories: data.featuredCategories || [],
         });
       }
@@ -61,7 +65,6 @@ const AdminSettings = () => {
   };
 
   const handleFileUpload = async (file: File, callback: (url: string) => void) => {
-    // Basic size check for videos
     if (file.type.startsWith('video/') && file.size > 15 * 1024 * 1024) {
       alert("Video file is too large! Please keep it under 15MB for best performance.");
       return;
@@ -88,6 +91,12 @@ const AdminSettings = () => {
       setUploading(false);
     }
   };
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-secondary"></div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -181,6 +190,20 @@ const AdminSettings = () => {
               />
            </section>
 
+           {/* Brand Statement */}
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex items-center space-x-3 mb-6">
+                 <Settings className="text-secondary" size={20} />
+                 <h3 className="font-serif text-xl">Brand Statement</h3>
+              </div>
+              <textarea 
+                value={settings.brandStatement}
+                onChange={e => setSettings({...settings, brandStatement: e.target.value})}
+                placeholder="Your brand mission statement..." 
+                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary transition-all text-sm min-h-[100px]"
+              />
+           </section>
+
            {/* Watch & Buy Video Section */}
            <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
               <div className="flex items-center space-x-3 mb-6">
@@ -213,26 +236,28 @@ const AdminSettings = () => {
                        </button>
                     </div>
                  </div>
-                 <p className="text-[10px] text-gray-400 italic">Recommended: Use YouTube for best performance. For uploads, keep files under 15MB.</p>
-                 
-                 <div className="p-4 bg-zinc-50 rounded-xl border border-dashed border-gray-200">
-                    <p className="text-[10px] text-gray-400 uppercase font-bold mb-2">Video Preview</p>
-                    {settings.videoUrl ? (
-                       <div className="aspect-video bg-black rounded-lg overflow-hidden max-w-sm">
-                          {settings.videoUrl.includes('youtube.com') || settings.videoUrl.includes('youtu.be') ? (
-                             <iframe 
-                               src={`https://www.youtube.com/embed/${settings.videoUrl.split('v=')[1]?.split('&')[0] || settings.videoUrl.split('/').pop()}`}
-                               className="w-full h-full"
-                               allowFullScreen
-                             />
-                          ) : (
-                             <video src={settings.videoUrl} controls className="w-full h-full" />
-                          )}
-                       </div>
-                    ) : (
-                       <p className="text-sm text-gray-300 italic">No video selected</p>
-                    )}
-                 </div>
+                 {settings.videoUrl && (
+                   <div className="p-4 bg-zinc-50 rounded-xl border border-dashed border-gray-200">
+                      <p className="text-[10px] text-gray-400 uppercase font-bold mb-2">Video Preview</p>
+                      <div className="aspect-video bg-black rounded-lg overflow-hidden max-w-sm relative">
+                         {settings.videoUrl.includes('youtube.com') || settings.videoUrl.includes('youtu.be') ? (
+                            <iframe 
+                              src={`https://www.youtube.com/embed/${settings.videoUrl.split('v=')[1]?.split('&')[0] || settings.videoUrl.split('/').pop()}`}
+                              className="w-full h-full"
+                              allowFullScreen
+                            />
+                         ) : (
+                            <video src={settings.videoUrl} controls className="w-full h-full" />
+                         )}
+                         <button 
+                           onClick={() => setSettings({...settings, videoUrl: ""})}
+                           className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow-lg"
+                         >
+                           <X size={14} />
+                         </button>
+                      </div>
+                   </div>
+                 )}
               </div>
            </section>
 
@@ -321,40 +346,40 @@ const AdminSettings = () => {
                           <div className="col-span-1">
                              <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Slide Title</label>
                              <input 
-                               placeholder="Main Headline" 
-                               value={slide.title}
-                               onChange={e => {
-                                  const newSlides = [...settings.heroSlides];
-                                  newSlides[idx].title = e.target.value;
-                                  setSettings({...settings, heroSlides: newSlides});
-                               }}
-                               className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
+                                placeholder="Main Headline" 
+                                value={slide.title}
+                                onChange={e => {
+                                   const newSlides = [...settings.heroSlides];
+                                   newSlides[idx].title = e.target.value;
+                                   setSettings({...settings, heroSlides: newSlides});
+                                }}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
                              />
                           </div>
                           <div className="col-span-1">
                              <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Subtitle</label>
                              <input 
-                               placeholder="Subtext" 
-                               value={slide.subtitle}
-                               onChange={e => {
-                                  const newSlides = [...settings.heroSlides];
-                                  newSlides[idx].subtitle = e.target.value;
-                                  setSettings({...settings, heroSlides: newSlides});
-                               }}
-                               className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
+                                placeholder="Subtext" 
+                                value={slide.subtitle}
+                                onChange={e => {
+                                   const newSlides = [...settings.heroSlides];
+                                   newSlides[idx].subtitle = e.target.value;
+                                   setSettings({...settings, heroSlides: newSlides});
+                                }}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
                              />
                           </div>
                           <div className="col-span-1 sm:col-span-2">
                              <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Link URL</label>
                              <input 
-                               placeholder="/collection/new-arrivals" 
-                               value={slide.link}
-                               onChange={e => {
-                                  const newSlides = [...settings.heroSlides];
-                                  newSlides[idx].link = e.target.value;
-                                  setSettings({...settings, heroSlides: newSlides});
-                               }}
-                               className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
+                                placeholder="/collection/new-arrivals" 
+                                value={slide.link}
+                                onChange={e => {
+                                   const newSlides = [...settings.heroSlides];
+                                   newSlides[idx].link = e.target.value;
+                                   setSettings({...settings, heroSlides: newSlides});
+                                }}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
                              />
                           </div>
                        </div>
@@ -362,9 +387,255 @@ const AdminSettings = () => {
                  ))}
                  {settings.heroSlides.length === 0 && (
                     <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-2xl">
-                       <p className="text-gray-400 italic">No slides added yet.</p>
+                       <p className="text-gray-400 italic">No slides added yet. Website will show a welcome placeholder.</p>
                     </div>
                  )}
+              </div>
+           </section>
+
+           {/* Category Tiles Management */}
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                 <div className="flex items-center space-x-3">
+                    <LayoutDashboard className="text-secondary" size={20} />
+                    <h3 className="font-serif text-xl">Category Tiles</h3>
+                 </div>
+                 <button 
+                   onClick={() => setSettings({...settings, categoryTiles: [...settings.categoryTiles, { label: "", slug: "", image: "" }]})}
+                   className="text-xs font-bold uppercase tracking-widest text-secondary flex items-center space-x-1"
+                 >
+                    <Plus size={14} />
+                    <span>Add Category</span>
+                 </button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {settings.categoryTiles.map((cat, idx) => (
+                    <div key={idx} className="group relative p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                       <button 
+                         onClick={() => {
+                           const newCats = [...settings.categoryTiles];
+                           newCats.splice(idx, 1);
+                           setSettings({...settings, categoryTiles: newCats});
+                         }}
+                         className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                       >
+                          <X size={14} />
+                       </button>
+                       
+                       <div className="aspect-[4/3] bg-white rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center relative mb-4">
+                          {cat.image ? (
+                             <>
+                                <img src={cat.image} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                   <div className="relative">
+                                      <input 
+                                        type="file" 
+                                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                                        onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                           const newCats = [...settings.categoryTiles];
+                                           newCats[idx].image = url;
+                                           setSettings({...settings, categoryTiles: newCats});
+                                        })}
+                                      />
+                                      <button className="bg-white text-primary p-2 rounded-full shadow-lg">
+                                         <Upload size={16} />
+                                      </button>
+                                   </div>
+                                </div>
+                             </>
+                          ) : (
+                             <div className="text-center p-4">
+                                <ImageIcon size={24} className="text-gray-300 mx-auto mb-2" />
+                                <input 
+                                  type="file" 
+                                  className="absolute inset-0 opacity-0 cursor-pointer" 
+                                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                     const newCats = [...settings.categoryTiles];
+                                     newCats[idx].image = url;
+                                     setSettings({...settings, categoryTiles: newCats});
+                                  })}
+                                />
+                                <span className="text-[10px] text-gray-400 font-bold uppercase">Upload Image</span>
+                             </div>
+                          )}
+                       </div>
+                       
+                       <div className="space-y-3">
+                          <div>
+                             <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Label</label>
+                             <input 
+                                placeholder="Shirts" 
+                                value={cat.label}
+                                onChange={e => {
+                                   const newCats = [...settings.categoryTiles];
+                                   newCats[idx].label = e.target.value;
+                                   setSettings({...settings, categoryTiles: newCats});
+                                }}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white"
+                             />
+                          </div>
+                          <div>
+                             <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Collection Slug</label>
+                             <input 
+                                placeholder="mens-shirts" 
+                                value={cat.slug}
+                                onChange={e => {
+                                   const newCats = [...settings.categoryTiles];
+                                   newCats[idx].slug = e.target.value;
+                                   setSettings({...settings, categoryTiles: newCats});
+                                }}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white"
+                             />
+                          </div>
+                       </div>
+                    </div>
+                 ))}
+                 {settings.categoryTiles.length === 0 && (
+                    <div className="col-span-full text-center py-12 border-2 border-dashed border-gray-100 rounded-2xl">
+                       <p className="text-gray-400 italic">No category tiles added. Section will be hidden.</p>
+                    </div>
+                 )}
+              </div>
+           </section>
+
+           {/* Shop the Look Management */}
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex items-center space-x-3 mb-8">
+                 <ShoppingCart className="text-secondary" size={20} />
+                 <h3 className="font-serif text-xl">Shop The Look</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                 <div className="space-y-6">
+                    <div className="aspect-[4/5] bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center relative overflow-hidden group">
+                       {settings.shopTheLook?.image ? (
+                          <>
+                             <img src={settings.shopTheLook.image} className="w-full h-full object-cover" />
+                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="relative">
+                                   <input 
+                                     type="file" 
+                                     className="absolute inset-0 opacity-0 cursor-pointer" 
+                                     onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                        setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), image: url}});
+                                     })}
+                                   />
+                                   <button className="bg-white text-primary p-2 rounded-full shadow-lg">
+                                      <Upload size={16} />
+                                   </button>
+                                </div>
+                             </div>
+                          </>
+                       ) : (
+                          <div className="text-center p-8">
+                             <ImageIcon size={32} className="text-gray-300 mx-auto mb-4" />
+                             <input 
+                               type="file" 
+                               className="absolute inset-0 opacity-0 cursor-pointer" 
+                               onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                  setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), image: url}});
+                               })}
+                             />
+                             <span className="text-xs text-gray-400 font-bold uppercase">Upload Lifestyle Image</span>
+                          </div>
+                       )}
+                    </div>
+                 </div>
+
+                 <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <div className="col-span-full">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Section Title</label>
+                          <input 
+                            placeholder="Shop the Look" 
+                            value={settings.shopTheLook?.title || ""}
+                            onChange={e => setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), title: e.target.value}})}
+                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Tag/Label</label>
+                          <input 
+                            placeholder="Curated Style" 
+                            value={settings.shopTheLook?.label || ""}
+                            onChange={e => setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), label: e.target.value}})}
+                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Subtitle</label>
+                          <input 
+                            placeholder="Summer Essentials" 
+                            value={settings.shopTheLook?.subtitle || ""}
+                            onChange={e => setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), subtitle: e.target.value}})}
+                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                          />
+                       </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-gray-100">
+                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">Featured Products (Max 2)</p>
+                       <div className="space-y-4">
+                          {[0, 1].map((pIdx) => (
+                             <div key={pIdx} className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                                <div className="flex items-center gap-4">
+                                   <div className="w-16 h-16 bg-white rounded border border-gray-200 flex items-center justify-center relative shrink-0 overflow-hidden">
+                                      {settings.shopTheLook?.products?.[pIdx]?.image ? (
+                                         <img src={settings.shopTheLook.products[pIdx].image} className="w-full h-full object-cover" />
+                                      ) : (
+                                         <ImageIcon size={16} className="text-gray-300" />
+                                      )}
+                                      <input 
+                                         type="file" 
+                                         className="absolute inset-0 opacity-0 cursor-pointer" 
+                                         onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                            const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                            products[pIdx].image = url;
+                                            setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                         })}
+                                      />
+                                   </div>
+                                   <div className="flex-1 space-y-2">
+                                      <input 
+                                         placeholder="Product Name" 
+                                         value={settings.shopTheLook?.products?.[pIdx]?.name || ""}
+                                         onChange={e => {
+                                            const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                            products[pIdx].name = e.target.value;
+                                            setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                         }}
+                                         className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs"
+                                      />
+                                      <div className="grid grid-cols-2 gap-2">
+                                         <input 
+                                            placeholder="Price (e.g. Rs. 5,000)" 
+                                            value={settings.shopTheLook?.products?.[pIdx]?.price || ""}
+                                            onChange={e => {
+                                               const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                               products[pIdx].price = e.target.value;
+                                               setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                            }}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs"
+                                         />
+                                         <input 
+                                            placeholder="Link (/product/slug)" 
+                                            value={settings.shopTheLook?.products?.[pIdx]?.link || ""}
+                                            onChange={e => {
+                                               const products = [...(settings.shopTheLook?.products || [{name:"", price:"", image:"", link:""}, {name:"", price:"", image:"", link:""}])];
+                                               products[pIdx].link = e.target.value;
+                                               setSettings({...settings, shopTheLook: {...(settings.shopTheLook || {}), products}});
+                                            }}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs"
+                                         />
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
               </div>
            </section>
         </div>

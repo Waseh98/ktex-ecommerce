@@ -8,9 +8,19 @@ gsap.registerPlugin(ScrollTrigger);
 
 const BrandStatement = () => {
   const textRef = useRef<HTMLHeadingElement>(null);
+  const [statement, setStatement] = useState("");
 
   useEffect(() => {
-    if (!textRef.current) return;
+    fetch("/api/admin/homepage", { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.brandStatement) setStatement(data.brandStatement);
+        else setStatement("Rooted in heritage, designed for the future. Every stitch at K-TEX tells a story of artisanal excellence and modern luxury.");
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!textRef.current || !statement) return;
     const chars = textRef.current.innerText.split("");
     textRef.current.innerHTML = chars
       .map((char) => `<span class="char opacity-0 inline-block">${char === " " ? "&nbsp;" : char}</span>`)
@@ -28,7 +38,9 @@ const BrandStatement = () => {
         scrub: 1,
       },
     });
-  }, []);
+  }, [statement]);
+
+  if (!statement) return null;
 
   return (
     <section className="py-32 bg-primary text-ivory">
@@ -39,7 +51,7 @@ const BrandStatement = () => {
             ref={textRef}
             className="text-4xl md:text-6xl font-serif leading-tight mb-12"
           >
-            Rooted in heritage, designed for the future. Every stitch at K-TEX tells a story of artisanal excellence and modern luxury.
+            {statement}
           </h2>
           <div className="flex justify-center">
              <div className="w-12 h-0.5 bg-secondary" />
