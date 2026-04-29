@@ -31,5 +31,3 @@ export default function Home() {
     </>
   );
 }
-
-<!-- Vercel Refresh Check: 1777450196175 -->
