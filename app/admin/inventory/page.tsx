@@ -15,6 +15,7 @@ const InventoryPage = () => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   
   // Form state
@@ -121,11 +122,24 @@ const InventoryPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[110] lg:hidden backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-primary text-white hidden lg:flex flex-col">
-        <div className="p-8">
-           <Logo className="h-8" invert />
-           <p className="text-[10px] uppercase tracking-widest opacity-50 mt-2">Admin Panel</p>
+      <aside className={`fixed inset-y-0 left-0 w-64 bg-primary text-white z-[120] transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col`}>
+        <div className="p-8 flex justify-between items-center">
+           <div>
+             <Logo className="h-8" invert />
+             <p className="text-[10px] uppercase tracking-widest opacity-50 mt-2">Admin Panel</p>
+           </div>
+           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white/50 hover:text-white">
+             <X size={20} />
+           </button>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-8">
            <Link href="/admin/orders" className="flex items-center space-x-3 p-4 rounded-xl hover:bg-white/10 transition-colors">
@@ -148,53 +162,61 @@ const InventoryPage = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="bg-white border-b border-gray-100 p-8 flex justify-between items-center shrink-0">
-           <div className="flex items-center space-x-8">
-              <h2 className="text-2xl font-serif text-primary">Inventory Management</h2>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden w-full">
+        <header className="bg-white border-b border-gray-100 p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center shrink-0 gap-4">
+           <div className="flex items-center justify-between w-full sm:w-auto space-x-4 md:space-x-8">
+              <div className="flex items-center space-x-4">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 bg-gray-50 rounded-lg text-primary"
+                >
+                  <LayoutDashboard size={20} />
+                </button>
+                <h2 className="text-xl md:text-2xl font-serif text-primary">Inventory</h2>
+              </div>
               <button 
                 onClick={() => {
                   document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
                   window.location.href = "/admin/login";
                 }}
-                className="flex items-center space-x-2 text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors bg-red-50 px-3 py-1.5 rounded-lg"
+                className="flex items-center space-x-2 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors bg-red-50 px-2 md:px-3 py-1 md:py-1.5 rounded-lg"
               >
-                <LogOut size={14} />
-                <span>Logout</span>
+                <LogOut size={12} />
+                <span className="hidden xs:inline">Logout</span>
               </button>
            </div>
-           <div className="flex items-center space-x-4">
-               <div className="relative">
+           <div className="flex items-center space-x-2 md:space-x-4 w-full sm:w-auto">
+               <div className="relative flex-1 sm:flex-none">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input 
                     type="text" 
-                    placeholder="Search products..." 
-                    className="pl-10 pr-4 py-2 border border-gray-100 rounded-lg text-sm w-64 focus:outline-none focus:border-secondary"
+                    placeholder="Search..." 
+                    className="pl-10 pr-4 py-2 border border-gray-100 rounded-lg text-sm w-full sm:w-48 md:w-64 focus:outline-none focus:border-secondary"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                </div>
-               <button onClick={openAddModal} className="bg-secondary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 hover:bg-primary transition-colors">
+               <button onClick={openAddModal} className="bg-secondary text-white p-2 md:px-4 md:py-2 rounded-lg text-sm font-bold flex items-center space-x-2 hover:bg-primary transition-colors shrink-0">
                    <Plus size={16} />
-                   <span>Add Product</span>
+                   <span className="hidden md:inline">Add Product</span>
                </button>
            </div>
         </header>
 
-        <div className="p-8 flex-1 overflow-y-auto">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="p-4 md:p-8 flex-1 overflow-y-auto">
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {loading ? (
                 <div className="col-span-full text-center py-20 text-gray-400">Loading inventory...</div>
               ) : filteredItems.map((item) => (
                 <div key={item.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-50 group hover:border-secondary transition-colors">
                    <div className="flex justify-between items-start mb-4">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-secondary">{item.category}</p>
-                      <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button onClick={() => openEditModal(item)} className="p-1.5 text-gray-400 hover:text-primary transition-colors bg-gray-50 rounded-md">
-                            <Edit2 size={14} />
+                      <div className="flex space-x-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                         <button onClick={() => openEditModal(item)} className="p-2 text-gray-400 hover:text-primary transition-colors bg-gray-50 rounded-md">
+                            <Edit2 size={16} />
                          </button>
-                         <button onClick={() => handleDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 rounded-md">
-                            <Trash2 size={14} />
+                         <button onClick={() => handleDelete(item.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 rounded-md">
+                            <Trash2 size={16} />
                          </button>
                       </div>
                    </div>
@@ -246,8 +268,8 @@ const InventoryPage = () => {
               </div>
               
               {/* Form Body - Scrollable */}
-              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
-                 <div className="grid grid-cols-2 gap-8">
+              <div className="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                        <div className="col-span-2">
                           <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Product Name</label>
                           <input required type="text" placeholder="Enter product name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
