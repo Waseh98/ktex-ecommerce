@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Package, Search, Calendar, CreditCard, ChevronRight, LayoutDashboard, ShoppingCart, Users, Settings } from "lucide-react";
+import { Package, Search, Calendar, CreditCard, ChevronRight, LayoutDashboard, ShoppingCart, Users, Settings, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 
@@ -168,7 +168,22 @@ const AdminDashboard = () => {
       console.error(err);
     }
   };
-
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/admin/orders?orderId=${orderId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchOrders();
+      } else {
+        alert("Failed to delete order");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting order");
+    }
+  };
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
@@ -285,15 +300,24 @@ const AdminDashboard = () => {
                                {order.status}
                             </span>
                          </td>
-                         <td className="px-8 py-6 text-right">
-                            <button 
-                               onClick={() => downloadInvoice(order)}
-                               className="px-4 py-2 bg-zinc-50 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center space-x-2 ml-auto"
-                            >
-                               <Package size={12} />
-                               <span>Invoice</span>
-                            </button>
-                         </td>
+                          <td className="px-8 py-6 text-right">
+                             <div className="flex items-center justify-end space-x-2">
+                                <button 
+                                   onClick={() => downloadInvoice(order)}
+                                   className="px-4 py-2 bg-zinc-50 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center space-x-2"
+                                >
+                                   <Package size={12} />
+                                   <span>Invoice</span>
+                                </button>
+                                <button 
+                                   onClick={() => handleDeleteOrder(order.orderId)}
+                                   className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                   title="Delete Order"
+                                >
+                                   <Trash2 size={14} />
+                                </button>
+                             </div>
+                          </td>
                       </tr>
                     ))}
                  </tbody>

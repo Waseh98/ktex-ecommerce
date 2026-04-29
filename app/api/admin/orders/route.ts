@@ -45,4 +45,25 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Failed to update notes" }, { status: 500 });
   }
 }
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const orderId = searchParams.get("orderId");
+    
+    if (!orderId) {
+      return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
+    }
 
+    const ordersCollection = await getCollection();
+    const result = await ordersCollection.deleteOne({ orderId: orderId });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Admin Order Deletion Error:", error);
+    return NextResponse.json({ error: "Failed to delete order" }, { status: 500 });
+  }
+}
