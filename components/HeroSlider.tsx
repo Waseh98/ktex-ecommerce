@@ -16,32 +16,8 @@ interface Slide {
   link: string;
 }
 
-const fallbackSlides: Slide[] = [
-  {
-    id: 1,
-    image: "https://shopbrumano.com/cdn/shop/files/2_422bbc91-79f1-4967-9610-cd0aa11ada83.jpg?v=1744893498&width=1920",
-    title: "New Season Arrivals",
-    subtitle: "Discover the latest in premium menswear",
-    link: "/collection/new-arrivals",
-  },
-  {
-    id: 2,
-    image: "https://shopbrumano.com/cdn/shop/files/1_e1a23c26-0c72-4c0a-af7e-e8cb1e95e0ab.jpg?v=1745497979&width=1920",
-    title: "Summer Collection",
-    subtitle: "Effortless style for the season",
-    link: "/collection/mens",
-  },
-  {
-    id: 3,
-    image: "https://shopbrumano.com/cdn/shop/files/1_7e8f19a8-68ec-43c5-87dd-c8c17ca1b40e.jpg?v=1745326587&width=1920",
-    title: "Premium Formals",
-    subtitle: "Tailored for excellence",
-    link: "/collection/formal-shirts",
-  },
-];
-
 const HeroSlider = () => {
-  const [slides, setSlides] = useState<Slide[]>(fallbackSlides);
+  const [slides, setSlides] = useState<Slide[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -64,11 +40,21 @@ const HeroSlider = () => {
   }, []);
 
   const validSlides = slides.filter(s => s.image && s.image.trim() !== "");
+  
+  const finalSlides = validSlides.length > 0 ? validSlides : [
+    {
+      id: 'default',
+      image: "https://images.unsplash.com/photo-1441984908747-d4121f267011?q=80&w=1920",
+      title: "Welcome to K-TEX",
+      subtitle: "Experience Premium Quality & Style",
+      link: "/collection/all"
+    }
+  ];
 
   return (
     <section className="relative w-full overflow-hidden" style={{ height: "clamp(400px, 70vh, 700px)" }}>
       <Swiper
-        key={validSlides.length}
+        key={finalSlides.length}
         modules={[Autoplay, Pagination, EffectFade]}
         effect="fade"
         fadeEffect={{ crossFade: true }}
@@ -78,13 +64,13 @@ const HeroSlider = () => {
           renderBullet: (index: number, className: string) =>
             `<span class="${className}" style="width:${index === activeIndex ? '24px' : '8px'};height:8px;border-radius:4px;transition:all 0.3s"></span>`,
         }}
-        loop={validSlides.length > 1}
+        loop={finalSlides.length > 1}
         observer={true}
         observeParents={true}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
         className="w-full h-full"
       >
-        {validSlides.map((slide, index) => (
+        {finalSlides.map((slide, index) => (
           <SwiperSlide key={slide.id || index}>
             <div className="relative w-full h-full">
               {/* Background Image */}

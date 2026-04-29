@@ -243,13 +243,26 @@ const AdminSettings = () => {
                     <ImageIcon className="text-secondary" size={20} />
                     <h3 className="font-serif text-xl">Hero Slider</h3>
                  </div>
-                 <button 
-                   onClick={() => setSettings({...settings, heroSlides: [...settings.heroSlides, { image: "", title: "", subtitle: "", link: "" }]})}
-                   className="text-xs font-bold uppercase tracking-widest text-secondary flex items-center space-x-1"
-                 >
-                    <Plus size={14} />
-                    <span>Add Slide</span>
-                 </button>
+                 <div className="flex items-center space-x-4">
+                    <button 
+                      onClick={() => {
+                        if (confirm("Are you sure you want to remove all slides?")) {
+                          setSettings({...settings, heroSlides: []});
+                        }
+                      }}
+                      className="text-xs font-bold uppercase tracking-widest text-red-400 flex items-center space-x-1"
+                    >
+                       <Trash2 size={14} />
+                       <span>Delete All</span>
+                    </button>
+                    <button 
+                      onClick={() => setSettings({...settings, heroSlides: [...settings.heroSlides, { image: "", title: "", subtitle: "", link: "" }]})}
+                      className="text-xs font-bold uppercase tracking-widest text-secondary flex items-center space-x-1"
+                    >
+                       <Plus size={14} />
+                       <span>Add Slide</span>
+                    </button>
+                 </div>
               </div>
               
               <div className="space-y-6">
