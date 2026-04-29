@@ -17,6 +17,16 @@ const AdminSettings = () => {
     heroSlides: [] as { image: string, title: string, subtitle: string, link: string }[],
     brandStatement: "",
     categoryTiles: [] as { label: string, slug: string, image: string }[],
+    shopTheLook: {
+      image: "",
+      title: "",
+      label: "",
+      subtitle: "",
+      products: [
+        { name: "", price: "", image: "", link: "" },
+        { name: "", price: "", image: "", link: "" }
+      ]
+    },
     featuredCategories: [] as string[],
   });
 
@@ -35,6 +45,16 @@ const AdminSettings = () => {
           heroSlides: data.heroSlides || [],
           brandStatement: data.brandStatement || "Rooted in heritage, designed for the future. Every stitch at K-TEX tells a story of artisanal excellence and modern luxury.",
           categoryTiles: data.categoryTiles || [],
+          shopTheLook: data.shopTheLook || {
+            image: "",
+            title: "",
+            label: "",
+            subtitle: "",
+            products: [
+              { name: "", price: "", image: "", link: "" },
+              { name: "", price: "", image: "", link: "" }
+            ]
+          },
           featuredCategories: data.featuredCategories || [],
         });
       }
