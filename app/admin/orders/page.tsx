@@ -226,14 +226,28 @@ const AdminDashboard = () => {
               <Package size={18} />
               <span className="text-sm font-medium">Inventory</span>
            </Link>
+           <Link href="/admin/settings" className="flex items-center space-x-3 p-4 rounded-xl hover:bg-white/10 transition-colors">
+              <Settings size={18} />
+              <span className="text-sm font-medium">Store Settings</span>
+           </Link>
            <Link href="/admin/orders" className="flex items-center space-x-3 p-4 rounded-xl hover:bg-white/10 transition-colors">
               <Users size={18} />
               <span className="text-sm font-medium">Customers</span>
            </Link>
         </nav>
 
-        <div className="p-8 border-t border-white/10">
-           <Link href="/" className="text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">View Storefront</Link>
+        <div className="p-8 border-t border-white/10 space-y-4">
+           <button 
+             onClick={() => {
+               document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+               window.location.href = "/admin/login";
+             }}
+             className="flex items-center space-x-3 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors w-full"
+           >
+              <LogOut size={16} />
+              <span>Sign Out</span>
+           </button>
+           <Link href="/" className="block text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">View Storefront</Link>
         </div>
       </aside>
 

@@ -1,18 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { PROMO_MESSAGE } from "@/lib/constants";
 
 const AnnouncementBar = () => {
   const [visible, setVisible] = useState(true);
+  const [message, setMessage] = useState(PROMO_MESSAGE);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("/api/admin/homepage");
+        const data = await res.json();
+        if (data.announcement) setMessage(data.announcement);
+      } catch (err) {
+        console.error("Failed to fetch announcement setting", err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   if (!visible) return null;
 
   return (
     <div className="relative bg-primary text-white py-2.5 px-4 text-center z-[51]">
       <p className="text-[11px] font-medium tracking-wider uppercase">
-        {PROMO_MESSAGE}
+        {message}
       </p>
       <button
         onClick={() => setVisible(false)}
