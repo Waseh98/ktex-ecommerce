@@ -26,6 +26,7 @@ const InventoryPage = () => {
     category: "",
     stock: 0,
     image: "",
+    images: [] as string[],
     desc: "",
   });
 
@@ -72,7 +73,12 @@ const InventoryPage = () => {
         await fetch("/api/admin/products", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...editingProduct, ...formData }),
+          body: JSON.stringify({ 
+            ...editingProduct, 
+            ...formData,
+            image: formData.images[0] || formData.image,
+            hoverImage: formData.images[1] || "",
+          }),
         });
       } else {
         // Create
@@ -81,6 +87,8 @@ const InventoryPage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...formData,
+            image: formData.images[0] || formData.image, // Fallback for backward compatibility
+            hoverImage: formData.images[1] || "",
             tags: [],
             badge: "",
           }),
@@ -95,7 +103,7 @@ const InventoryPage = () => {
 
   const openAddModal = () => {
     setEditingProduct(null);
-    setFormData({ name: "", price: "", fabric: "", category: "", stock: 0, image: "", desc: "" });
+    setFormData({ name: "", price: "", fabric: "", category: "", stock: 0, image: "", images: [], desc: "" });
     setIsModalOpen(true);
   };
 
@@ -108,6 +116,7 @@ const InventoryPage = () => {
       category: product.category || "",
       stock: product.stock || 0,
       image: product.image || "",
+      images: product.images || (product.image ? [product.image] : []),
       desc: product.desc || "",
     });
     setIsModalOpen(true);
@@ -291,65 +300,85 @@ const InventoryPage = () => {
                           <input type="text" placeholder="e.g. Raw Silk" value={formData.fabric} onChange={e => setFormData({...formData, fabric: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-all text-sm" />
                        </div>
                        <div className="col-span-2">
-                          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Product Image</label>
-                          
-                          <div className="flex items-center space-x-6">
-                            <div className="w-24 h-32 bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shrink-0 flex items-center justify-center relative">
-                               {formData.image ? (
-                                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                               ) : (
-                                  <Package className="text-gray-300" size={32} />
-                               )}
-                               {uploading && (
-                                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                     <div className="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></div>
-                                  </div>
-                               )}
-                            </div>
-                            
-                            <div className="flex-1">
-                              <div className="relative">
-                                 <input 
-                                    type="file" 
-                                    accept="image/*"
-                                    id="file-upload"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    onChange={async (e) => {
-                                       const file = e.target.files?.[0];
-                                       if (!file) return;
-                                       
-                                       setUploading(true);
-                                       try {
-                                          const uploadData = new FormData();
-                                          uploadData.append("file", file);
-                                          
-                                          const res = await fetch("/api/admin/upload", {
-                                             method: "POST",
-                                             body: uploadData,
-                                          });
-                                          
-                                          if (res.ok) {
-                                             const { url } = await res.json();
-                                             setFormData({...formData, image: url});
-                                          } else {
-                                             alert("Image upload failed");
-                                          }
-                                       } catch (err) {
-                                          console.error("Upload error", err);
-                                          alert("Image upload error");
-                                       } finally {
-                                          setUploading(false);
-                                       }
-                                    }}
-                                 />
-                                 <label htmlFor="file-upload" className={`inline-flex items-center justify-center px-6 py-4 border-2 border-dashed rounded-xl w-full cursor-pointer transition-colors ${uploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'bg-secondary/5 border-secondary/30 text-secondary hover:bg-secondary/10 hover:border-secondary/50'}`}>
-                                    <span className="text-sm font-bold">{uploading ? "Uploading Image..." : "Click here to Upload Image"}</span>
-                                 </label>
-                              </div>
-                              <p className="text-xs text-gray-400 mt-3 italic">Select a high-quality image. It will upload automatically.</p>
-                              <input type="text" readOnly required value={formData.image} placeholder="Image URL will appear here" className="mt-2 w-full text-[10px] text-gray-400 bg-transparent border-none outline-none" />
-                            </div>
-                          </div>
+                           <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Product Images (Up to 4)</label>
+                           
+                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                              {[0, 1, 2, 3].map((index) => (
+                                 <div key={index} className="flex flex-col space-y-2">
+                                    <div className="aspect-[3/4] bg-gray-50 border border-gray-200 rounded-xl overflow-hidden relative flex items-center justify-center">
+                                       {formData.images[index] ? (
+                                          <>
+                                             <img src={formData.images[index]} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                                             <button 
+                                                type="button" 
+                                                onClick={() => {
+                                                   const newImages = [...formData.images];
+                                                   newImages.splice(index, 1);
+                                                   setFormData({...formData, images: newImages});
+                                                }}
+                                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                             >
+                                                <X size={12} />
+                                             </button>
+                                          </>
+                                       ) : (
+                                          <div className="flex flex-col items-center justify-center text-gray-300">
+                                             <Package size={24} />
+                                             <span className="text-[8px] mt-1 uppercase font-bold">Slot {index + 1}</span>
+                                          </div>
+                                       )}
+                                       {uploading && (
+                                          <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                             <div className="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></div>
+                                          </div>
+                                       )}
+                                    </div>
+                                    
+                                    <div className="relative">
+                                       <input 
+                                          type="file" 
+                                          accept="image/*"
+                                          id={`file-upload-${index}`}
+                                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                          disabled={uploading}
+                                          onChange={async (e) => {
+                                             const file = e.target.files?.[0];
+                                             if (!file) return;
+                                             
+                                             setUploading(true);
+                                             try {
+                                                const uploadData = new FormData();
+                                                uploadData.append("file", file);
+                                                
+                                                const res = await fetch("/api/admin/upload", {
+                                                   method: "POST",
+                                                   body: uploadData,
+                                                });
+                                                
+                                                if (res.ok) {
+                                                   const { url } = await res.json();
+                                                   const newImages = [...formData.images];
+                                                   newImages[index] = url;
+                                                   setFormData({...formData, images: newImages});
+                                                } else {
+                                                   alert("Image upload failed");
+                                                }
+                                             } catch (err) {
+                                                console.error("Upload error", err);
+                                                alert("Image upload error");
+                                             } finally {
+                                                setUploading(false);
+                                             }
+                                          }}
+                                       />
+                                       <label htmlFor={`file-upload-${index}`} className={`inline-flex items-center justify-center py-2 border border-dashed rounded-lg w-full cursor-pointer transition-colors ${uploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'bg-secondary/5 border-secondary/30 text-secondary hover:bg-secondary/10 hover:border-secondary/50'}`}>
+                                          <span className="text-[10px] font-bold">{uploading ? "..." : "Upload"}</span>
+                                       </label>
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                           <p className="text-xs text-gray-400 mt-3 italic">First image will be the primary product image.</p>
                        </div>
                        <div className="col-span-2">
                           <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-3">Description</label>

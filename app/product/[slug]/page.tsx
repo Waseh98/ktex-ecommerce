@@ -115,7 +115,13 @@ export default function ProductPage() {
     );
   }
 
-  const images = product.images?.length ? product.images : [product.image, product.hoverImage].filter(Boolean);
+  const images = (product.images?.length 
+    ? product.images 
+    : [product.image, product.hoverImage]
+  ).filter(img => img && typeof img === 'string' && img.trim() !== "" && img !== "null");
+  
+  // Ensure we don't crash if all images are filtered out
+  const finalImages = images.length > 0 ? images : ["/placeholder.png"];
   const hasDiscount = product.oldPrice || product.salePrice;
   const originalPrice = product.oldPrice || product.salePrice || "";
   let discountPercent = "";
@@ -153,7 +159,7 @@ export default function ProductPage() {
           <div className="lg:w-3/5 flex flex-col md:flex-row gap-3">
             {/* Thumbnails */}
             <div className="order-2 md:order-1 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[600px]">
-              {images.map((img, idx) => (
+              {finalImages.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
@@ -169,7 +175,7 @@ export default function ProductPage() {
             {/* Main Image */}
             <div className="order-1 md:order-2 flex-1 relative aspect-[3/4] overflow-hidden bg-gray-100 group cursor-zoom-in">
               <img
-                src={images[selectedImage]}
+                src={finalImages[selectedImage]}
                 alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-150"
               />
