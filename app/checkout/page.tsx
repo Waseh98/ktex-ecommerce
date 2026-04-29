@@ -12,6 +12,20 @@ const steps = ["Shipping", "Review", "Payment"];
 const CheckoutPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const { items } = useCartStore();
+  
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    phone: ""
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const subtotal = items.reduce((acc, item) => {
     const price = parseInt(item.price.replace(/[^\d]/g, ""));
@@ -55,25 +69,35 @@ const CheckoutPage = () => {
                   <h2 className="text-2xl font-serif">Shipping Information</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <div className="relative group">
-                        <input type="text" placeholder="First Name" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
+                        <input name="firstName" value={formData.firstName} onChange={handleChange} type="text" placeholder="First Name" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
                         <label className="absolute left-0 top-0 text-[10px] uppercase tracking-widest text-gray-400 -translate-y-full transition-all peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-sm peer-focus:-translate-y-full peer-focus:text-[10px]">First Name</label>
                      </div>
                      <div className="relative">
-                        <input type="text" placeholder="Last Name" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
+                        <input name="lastName" value={formData.lastName} onChange={handleChange} type="text" placeholder="Last Name" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
                         <label className="absolute left-0 top-0 text-[10px] uppercase tracking-widest text-gray-400 -translate-y-full transition-all peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-sm peer-focus:-translate-y-full peer-focus:text-[10px]">Last Name</label>
                      </div>
                   </div>
                   <div className="relative">
-                     <input type="text" placeholder="Shipping Address" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
+                     <input name="email" value={formData.email} onChange={handleChange} type="email" placeholder="Email Address" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
+                     <label className="absolute left-0 top-0 text-[10px] uppercase tracking-widest text-gray-400 -translate-y-full transition-all peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-sm peer-focus:-translate-y-full peer-focus:text-[10px]">Email Address</label>
+                  </div>
+                  <div className="relative">
+                     <input name="address" value={formData.address} onChange={handleChange} type="text" placeholder="Shipping Address" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none transition-colors peer" />
                      <label className="absolute left-0 top-0 text-[10px] uppercase tracking-widest text-gray-400 -translate-y-full transition-all peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-sm peer-focus:-translate-y-full peer-focus:text-[10px]">Shipping Address</label>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     <input type="text" placeholder="City" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none" />
-                     <input type="text" placeholder="Postal Code" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none" />
-                     <input type="tel" placeholder="Phone Number" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none" />
+                     <input name="city" value={formData.city} onChange={handleChange} type="text" placeholder="City" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none" />
+                     <input name="postalCode" value={formData.postalCode} onChange={handleChange} type="text" placeholder="Postal Code" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none" />
+                     <input name="phone" value={formData.phone} onChange={handleChange} type="tel" placeholder="Phone Number" className="w-full px-0 py-4 bg-transparent border-b border-gray-200 focus:border-secondary focus:outline-none" />
                   </div>
                   <button 
-                    onClick={() => setCurrentStep(1)}
+                    onClick={() => {
+                      if (!formData.email || !formData.address) {
+                        alert("Please fill in your email and address.");
+                        return;
+                      }
+                      setCurrentStep(1);
+                    }}
                     className="w-full bg-primary text-white py-5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-secondary transition-all"
                   >
                     Continue to Review
@@ -88,14 +112,18 @@ const CheckoutPage = () => {
                      <div className="flex justify-between items-start pb-6 border-b border-gray-100">
                         <div>
                            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Contact</p>
-                           <p className="text-sm font-medium">customer@example.com</p>
+                           <p className="text-sm font-medium">{formData.email}</p>
                         </div>
                         <button onClick={() => setCurrentStep(0)} className="text-[10px] font-bold uppercase tracking-widest text-secondary hover:text-primary transition-colors">Change</button>
                      </div>
                      <div className="flex justify-between items-start">
                         <div>
                            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Ship to</p>
-                           <p className="text-sm font-medium leading-relaxed">House 123, Street 456, Karachi, Pakistan</p>
+                           <p className="text-sm font-medium leading-relaxed">
+                             {formData.firstName} {formData.lastName}<br />
+                             {formData.address}, {formData.city}, {formData.postalCode}<br />
+                             {formData.phone}
+                           </p>
                         </div>
                         <button onClick={() => setCurrentStep(0)} className="text-[10px] font-bold uppercase tracking-widest text-secondary hover:text-primary transition-colors">Change</button>
                      </div>
@@ -141,8 +169,8 @@ const CheckoutPage = () => {
                             items,
                             total: total.toLocaleString(),
                             shippingInfo: {
-                              address: "House 123, Street 456, Karachi, Pakistan", // Placeholder from UI
-                              email: "customer@example.com"
+                              ...formData,
+                              customerName: `${formData.firstName} ${formData.lastName}`
                             }
                           })
                         });
