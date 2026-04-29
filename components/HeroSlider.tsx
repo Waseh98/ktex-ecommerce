@@ -9,38 +9,34 @@ import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
 interface Slide {
-  id: number;
+  id: any;
   image: string;
-  headline: string;
-  subtext: string;
-  ctaText: string;
-  ctaLink: string;
+  title: string;
+  subtitle: string;
+  link: string;
 }
 
 const fallbackSlides: Slide[] = [
   {
     id: 1,
     image: "https://shopbrumano.com/cdn/shop/files/2_422bbc91-79f1-4967-9610-cd0aa11ada83.jpg?v=1744893498&width=1920",
-    headline: "New Season Arrivals",
-    subtext: "Discover the latest in premium menswear",
-    ctaText: "Shop Now",
-    ctaLink: "/collection/new-arrivals",
+    title: "New Season Arrivals",
+    subtitle: "Discover the latest in premium menswear",
+    link: "/collection/new-arrivals",
   },
   {
     id: 2,
     image: "https://shopbrumano.com/cdn/shop/files/1_e1a23c26-0c72-4c0a-af7e-e8cb1e95e0ab.jpg?v=1745497979&width=1920",
-    headline: "Summer Collection",
-    subtext: "Effortless style for the season",
-    ctaText: "Explore",
-    ctaLink: "/collection/mens",
+    title: "Summer Collection",
+    subtitle: "Effortless style for the season",
+    link: "/collection/mens",
   },
   {
     id: 3,
     image: "https://shopbrumano.com/cdn/shop/files/1_7e8f19a8-68ec-43c5-87dd-c8c17ca1b40e.jpg?v=1745326587&width=1920",
-    headline: "Premium Formals",
-    subtext: "Tailored for excellence",
-    ctaText: "Shop Formals",
-    ctaLink: "/collection/formal-shirts",
+    title: "Premium Formals",
+    subtitle: "Tailored for excellence",
+    link: "/collection/formal-shirts",
   },
 ];
 
@@ -52,7 +48,17 @@ const HeroSlider = () => {
     fetch("/api/admin/homepage")
       .then((r) => r.json())
       .then((data) => {
-        if (data?.heroSlides?.length) setSlides(data.heroSlides);
+        if (data?.heroSlides?.length) {
+          // Map to ensure all required fields exist to prevent crashes
+          const mappedSlides = data.heroSlides.map((s: any, idx: number) => ({
+            id: s.id || idx,
+            image: s.image || "",
+            title: s.title || s.headline || "",
+            subtitle: s.subtitle || s.subtext || "",
+            link: s.link || s.ctaLink || "/",
+          }));
+          setSlides(mappedSlides);
+        }
       })
       .catch(() => {});
   }, []);
@@ -74,7 +80,7 @@ const HeroSlider = () => {
         className="w-full h-full hero-slider"
       >
         {slides.map((slide, index) => (
-          <SwiperSlide key={slide.id}>
+          <SwiperSlide key={slide.id || index}>
             <div className="relative w-full h-full">
               {/* Background Image */}
               <div
@@ -92,16 +98,16 @@ const HeroSlider = () => {
                       className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 leading-tight"
                       style={{ textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}
                     >
-                      {slide.headline}
+                      {slide.title}
                     </h2>
                     <p className="text-white/80 text-sm md:text-lg mb-6 max-w-md">
-                      {slide.subtext}
+                      {slide.subtitle}
                     </p>
                     <Link
-                      href={slide.ctaLink}
+                      href={slide.link || "/"}
                       className="inline-block bg-secondary text-white px-8 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-primary transition-all duration-300"
                     >
-                      {slide.ctaText}
+                      Shop Now
                     </Link>
                   </div>
                 </div>

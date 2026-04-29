@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Save, Plus, X, Video, Image as ImageIcon, Megaphone } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Save, Plus, X, Video, Image as ImageIcon, Megaphone, LogOut, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 
@@ -60,7 +60,13 @@ const AdminSettings = () => {
     }
   };
 
-  const handleImageUpload = async (file: File, callback: (url: string) => void) => {
+  const handleFileUpload = async (file: File, callback: (url: string) => void) => {
+    // Basic size check for videos
+    if (file.type.startsWith('video/') && file.size > 15 * 1024 * 1024) {
+      alert("Video file is too large! Please keep it under 15MB for best performance.");
+      return;
+    }
+
     setUploading(true);
     try {
       const formData = new FormData();
@@ -72,9 +78,12 @@ const AdminSettings = () => {
       if (res.ok) {
         const { url } = await res.json();
         callback(url);
+      } else {
+        alert("Upload failed. The file might be too large.");
       }
     } catch (err) {
       console.error(err);
+      alert("Upload error. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -82,13 +91,24 @@ const AdminSettings = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar (Reuse your sidebar logic) */}
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[110] lg:hidden backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 w-64 bg-primary text-white z-[120] transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col`}>
         <div className="p-8 flex justify-between items-center">
            <div>
              <Logo className="h-8" invert />
              <p className="text-[10px] uppercase tracking-widest opacity-50 mt-2">Admin Panel</p>
            </div>
+           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white/50 hover:text-white">
+             <X size={20} />
+           </button>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-8">
            <Link href="/admin/orders" className="flex items-center space-x-3 p-4 rounded-xl hover:bg-white/10 transition-colors">
@@ -108,24 +128,46 @@ const AdminSettings = () => {
               <span className="text-sm font-medium">Store Settings</span>
            </Link>
         </nav>
+
+        <div className="p-8 border-t border-white/10 space-y-4">
+           <button 
+             onClick={() => {
+               document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+               window.location.href = "/admin/login";
+             }}
+             className="flex items-center space-x-3 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors w-full"
+           >
+              <LogOut size={16} />
+              <span>Sign Out</span>
+           </button>
+           <Link href="/" className="block text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">View Storefront</Link>
+        </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="bg-white border-b border-gray-100 p-8 flex justify-between items-center shrink-0">
-           <h2 className="text-2xl font-serif text-primary">Store Settings</h2>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden w-full">
+        <header className="bg-white border-b border-gray-100 p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center shrink-0 gap-4">
+           <div className="flex items-center space-x-4">
+             <button 
+               onClick={() => setIsSidebarOpen(true)}
+               className="lg:hidden p-2 bg-gray-50 rounded-lg text-primary"
+             >
+               <LayoutDashboard size={20} />
+             </button>
+             <h2 className="text-xl md:text-2xl font-serif text-primary">Store Settings</h2>
+           </div>
            <button 
              onClick={handleSave}
              disabled={saving}
-             className="bg-secondary text-white px-8 py-3 rounded-xl font-bold flex items-center space-x-2 hover:bg-primary transition-colors disabled:opacity-50"
+             className="w-full sm:w-auto bg-secondary text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center space-x-2 hover:bg-primary transition-colors disabled:opacity-50"
            >
              <Save size={18} />
              <span>{saving ? "Saving..." : "Save All Changes"}</span>
            </button>
         </header>
 
-        <div className="p-8 flex-1 overflow-y-auto space-y-8 pb-20">
+        <div className="p-4 md:p-8 flex-1 overflow-y-auto space-y-8 pb-20">
            {/* Announcement Section */}
-           <section className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
               <div className="flex items-center space-x-3 mb-6">
                  <Megaphone className="text-secondary" size={20} />
                  <h3 className="font-serif text-xl">Announcement Bar</h3>
@@ -135,32 +177,51 @@ const AdminSettings = () => {
                 value={settings.announcement}
                 onChange={e => setSettings({...settings, announcement: e.target.value})}
                 placeholder="Free shipping on orders above Rs. 5,000..." 
-                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary transition-all"
+                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary transition-all text-sm"
               />
            </section>
 
            {/* Watch & Buy Video Section */}
-           <section className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
               <div className="flex items-center space-x-3 mb-6">
                  <Video className="text-secondary" size={20} />
                  <h3 className="font-serif text-xl">Watch & Buy Video</h3>
               </div>
               <div className="space-y-4">
-                 <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Video URL (YouTube or Direct MP4 Link)</label>
-                 <input 
-                   type="text" 
-                   value={settings.videoUrl}
-                   onChange={e => setSettings({...settings, videoUrl: e.target.value})}
-                   placeholder="https://www.youtube.com/watch?v=..." 
-                   className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary transition-all"
-                 />
+                 <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+                    <div className="flex-1">
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Video URL (YouTube or Direct Link)</label>
+                       <input 
+                         type="text" 
+                         value={settings.videoUrl}
+                         onChange={e => setSettings({...settings, videoUrl: e.target.value})}
+                         placeholder="https://www.youtube.com/watch?v=..." 
+                         className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary transition-all text-sm"
+                       />
+                    </div>
+                    <div className="relative">
+                       <input 
+                         type="file" 
+                         accept="video/*"
+                         className="absolute inset-0 opacity-0 cursor-pointer"
+                         onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => setSettings({...settings, videoUrl: url}))}
+                         disabled={uploading}
+                       />
+                       <button className={`px-6 py-3.5 border-2 border-dashed rounded-xl flex items-center space-x-2 transition-colors ${uploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'bg-secondary/5 border-secondary/30 text-secondary hover:bg-secondary/10'}`}>
+                          <Upload size={18} />
+                          <span className="text-sm font-bold">{uploading ? "Uploading..." : "Upload Video"}</span>
+                       </button>
+                    </div>
+                 </div>
+                 <p className="text-[10px] text-gray-400 italic">Recommended: Use YouTube for best performance. For uploads, keep files under 15MB.</p>
+                 
                  <div className="p-4 bg-zinc-50 rounded-xl border border-dashed border-gray-200">
                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-2">Video Preview</p>
                     {settings.videoUrl ? (
                        <div className="aspect-video bg-black rounded-lg overflow-hidden max-w-sm">
                           {settings.videoUrl.includes('youtube.com') || settings.videoUrl.includes('youtu.be') ? (
                              <iframe 
-                               src={`https://www.youtube.com/embed/${settings.videoUrl.split('v=')[1] || settings.videoUrl.split('/').pop()}`}
+                               src={`https://www.youtube.com/embed/${settings.videoUrl.split('v=')[1]?.split('&')[0] || settings.videoUrl.split('/').pop()}`}
                                className="w-full h-full"
                                allowFullScreen
                              />
@@ -169,14 +230,14 @@ const AdminSettings = () => {
                           )}
                        </div>
                     ) : (
-                       <p className="text-sm text-gray-300 italic">No video URL provided</p>
+                       <p className="text-sm text-gray-300 italic">No video selected</p>
                     )}
                  </div>
               </div>
            </section>
 
            {/* Hero Slider Management */}
-           <section className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+           <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
               <div className="flex justify-between items-center mb-8">
                  <div className="flex items-center space-x-3">
                     <ImageIcon className="text-secondary" size={20} />
@@ -193,75 +254,102 @@ const AdminSettings = () => {
               
               <div className="space-y-6">
                  {settings.heroSlides.map((slide, idx) => (
-                    <div key={idx} className="group relative p-6 bg-gray-50 rounded-2xl border border-gray-100 flex gap-6">
+                    <div key={idx} className="group relative p-4 md:p-6 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col md:flex-row gap-6">
                        <button 
                          onClick={() => {
                            const newSlides = [...settings.heroSlides];
                            newSlides.splice(idx, 1);
                            setSettings({...settings, heroSlides: newSlides});
                          }}
-                         className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                         className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
                        >
                           <X size={14} />
                        </button>
                        
-                       <div className="w-48 aspect-[16/9] bg-white rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center relative shrink-0">
+                       <div className="w-full md:w-48 aspect-[16/9] bg-white rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center relative shrink-0">
                           {slide.image ? (
-                             <img src={slide.image} className="w-full h-full object-cover" />
+                             <>
+                                <img src={slide.image} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                   <div className="relative">
+                                      <input 
+                                        type="file" 
+                                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                                        onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                           const newSlides = [...settings.heroSlides];
+                                           newSlides[idx].image = url;
+                                           setSettings({...settings, heroSlides: newSlides});
+                                        })}
+                                      />
+                                      <button className="bg-white text-primary p-2 rounded-full shadow-lg">
+                                         <Upload size={16} />
+                                      </button>
+                                   </div>
+                                </div>
+                             </>
                           ) : (
                              <div className="text-center p-4">
                                 <ImageIcon size={24} className="text-gray-300 mx-auto mb-2" />
                                 <input 
                                   type="file" 
                                   className="absolute inset-0 opacity-0 cursor-pointer" 
-                                  onChange={e => e.target.files?.[0] && handleImageUpload(e.target.files[0], (url) => {
+                                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
                                      const newSlides = [...settings.heroSlides];
                                      newSlides[idx].image = url;
                                      setSettings({...settings, heroSlides: newSlides});
                                   })}
                                 />
-                                <span className="text-[10px] text-gray-400 font-bold uppercase">Upload</span>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase">Upload Image</span>
                              </div>
                           )}
                        </div>
                        
-                       <div className="flex-1 grid grid-cols-2 gap-4">
-                          <input 
-                            placeholder="Slide Title" 
-                            value={slide.title}
-                            onChange={e => {
-                               const newSlides = [...settings.heroSlides];
-                               newSlides[idx].title = e.target.value;
-                               setSettings({...settings, heroSlides: newSlides});
-                            }}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm"
-                          />
-                          <input 
-                            placeholder="Subtitle" 
-                            value={slide.subtitle}
-                            onChange={e => {
-                               const newSlides = [...settings.heroSlides];
-                               newSlides[idx].subtitle = e.target.value;
-                               setSettings({...settings, heroSlides: newSlides});
-                            }}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm"
-                          />
-                          <input 
-                            placeholder="Link URL" 
-                            value={slide.link}
-                            onChange={e => {
-                               const newSlides = [...settings.heroSlides];
-                               newSlides[idx].link = e.target.value;
-                               setSettings({...settings, heroSlides: newSlides});
-                            }}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm col-span-2"
-                          />
+                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="col-span-1">
+                             <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Slide Title</label>
+                             <input 
+                               placeholder="Main Headline" 
+                               value={slide.title}
+                               onChange={e => {
+                                  const newSlides = [...settings.heroSlides];
+                                  newSlides[idx].title = e.target.value;
+                                  setSettings({...settings, heroSlides: newSlides});
+                               }}
+                               className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
+                             />
+                          </div>
+                          <div className="col-span-1">
+                             <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Subtitle</label>
+                             <input 
+                               placeholder="Subtext" 
+                               value={slide.subtitle}
+                               onChange={e => {
+                                  const newSlides = [...settings.heroSlides];
+                                  newSlides[idx].subtitle = e.target.value;
+                                  setSettings({...settings, heroSlides: newSlides});
+                               }}
+                               className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
+                             />
+                          </div>
+                          <div className="col-span-1 sm:col-span-2">
+                             <label className="text-[9px] font-bold uppercase text-gray-400 block mb-1">Link URL</label>
+                             <input 
+                               placeholder="/collection/new-arrivals" 
+                               value={slide.link}
+                               onChange={e => {
+                                  const newSlides = [...settings.heroSlides];
+                                  newSlides[idx].link = e.target.value;
+                                  setSettings({...settings, heroSlides: newSlides});
+                               }}
+                               className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white"
+                             />
+                          </div>
                        </div>
                     </div>
                  ))}
                  {settings.heroSlides.length === 0 && (
                     <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-2xl">
-                       <p className="text-gray-400 italic">No slides added yet. Add slides to populate the homepage banner.</p>
+                       <p className="text-gray-400 italic">No slides added yet.</p>
                     </div>
                  )}
               </div>
