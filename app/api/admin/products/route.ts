@@ -1,65 +1,72 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import clientPromise from "@/lib/mongodb";
 import { PLACEHOLDER_PRODUCTS } from "@/lib/constants";
 
-const PRODUCTS_PATH = path.join(process.cwd(), "scratch", "products.json");
+export const dynamic = "force-dynamic";
 
-function ensureScratchDir() {
-  const dir = path.dirname(PRODUCTS_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+async function getCollection() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("ktex_ecommerce");
+    return db.collection("products");
+  } catch (err) {
+    console.error("MongoDB Connection Error in getCollection:", err);
+    throw err;
   }
-}
-
-function getProducts() {
-  ensureScratchDir();
-  if (!fs.existsSync(PRODUCTS_PATH)) {
-    // Seed with placeholder products on first access
-    const seedProducts = PLACEHOLDER_PRODUCTS.map((p) => ({
-      ...p,
-      image: p.images?.[0] || "",
-      hoverImage: p.images?.[1] || "",
-      desc: p.description || "",
-    }));
-    saveProducts(seedProducts);
-    return seedProducts;
-  }
-  const data = JSON.parse(fs.readFileSync(PRODUCTS_PATH, "utf8"));
-  return data;
-}
-
-function saveProducts(products: any) {
-  ensureScratchDir();
-  fs.writeFileSync(PRODUCTS_PATH, JSON.stringify(products, null, 2));
 }
 
 export async function GET() {
   try {
-    return NextResponse.json(getProducts());
-  } catch (err) {
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+    const productsCollection = await getCollection();
+    let products = await productsCollection.find({}).toArray();
+    
+    if (products.length === 0) {
+      // Seed with placeholder products if DB is empty
+      const seedProducts = PLACEHOLDER_PRODUCTS.map((p) => ({
+        ...p,
+        image: p.images?.[0] || "",
+        hoverImage: p.images?.[1] || "",
+        desc: p.description || "",
+      }));
+      try {
+        await productsCollection.insertMany(seedProducts);
+      } catch (insertErr) {
+        console.error("Failed to seed database (possibly read-only permissions):", insertErr);
+        // Continue and just return the empty array or the mock data
+      }
+      products = seedProducts as any;
+    }
+    
+    return NextResponse.json(products);
+  } catch (err: any) {
+    console.error("Admin Fetch Error:", err);
+    return NextResponse.json({ 
+      error: "Failed to fetch products", 
+      details: err.message,
+      stack: err.stack
+    }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const product = await req.json();
-    const products = getProducts();
+    const productsCollection = await getCollection();
     
-    // Generate a new ID
-    const maxId = products.length > 0 ? Math.max(...products.map((p: any) => p.id || 0)) : 0;
+    // Generate a new ID (numeric for compatibility)
+    const lastProduct = await productsCollection.find().sort({ id: -1 }).limit(1).toArray();
+    const maxId = lastProduct.length > 0 ? lastProduct[0].id || 0 : 0;
+    
     const newProduct = {
       ...product,
       id: maxId + 1,
       slug: product.name.toLowerCase().replace(/\s+/g, '-'),
     };
     
-    products.push(newProduct);
-    saveProducts(products);
-    
+    await productsCollection.insertOne(newProduct);
     return NextResponse.json(newProduct, { status: 201 });
   } catch (err) {
+    console.error("Admin Add Error:", err);
     return NextResponse.json({ error: "Failed to add product" }, { status: 500 });
   }
 }
@@ -67,16 +74,21 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const updatedProduct = await req.json();
-    const products = getProducts();
-    const index = products.findIndex((p: any) => p.id === updatedProduct.id);
+    const productsCollection = await getCollection();
     
-    if (index === -1) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    const { _id, ...updateData } = updatedProduct; // Remove MongoDB internal ID if present
     
-    products[index] = { ...products[index], ...updatedProduct };
-    saveProducts(products);
+    const result = await productsCollection.findOneAndUpdate(
+      { id: updatedProduct.id },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    );
     
-    return NextResponse.json(products[index]);
+    if (!result) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    
+    return NextResponse.json(result);
   } catch (err) {
+    console.error("Admin Update Error:", err);
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
   }
 }
@@ -84,21 +96,22 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const id = parseInt(searchParams.get("id") || "0");
+    const idStr = searchParams.get("id");
+    const id = parseInt(idStr || "0");
     
     if (!id) return NextResponse.json({ error: "Product ID required" }, { status: 400 });
     
-    const products = getProducts();
-    const filteredProducts = products.filter((p: any) => p.id !== id);
+    const productsCollection = await getCollection();
+    const result = await productsCollection.deleteOne({ id: id });
     
-    if (products.length === filteredProducts.length) {
+    if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
     
-    saveProducts(filteredProducts);
-    
     return NextResponse.json({ success: true });
   } catch (err) {
+    console.error("Admin Delete Error:", err);
     return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
   }
 }
+

@@ -1,70 +1,68 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import clientPromise from "@/lib/mongodb";
 
-const PRODUCTS_PATH = path.join(process.cwd(), "scratch", "products.json");
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    if (!fs.existsSync(PRODUCTS_PATH)) {
-      return NextResponse.json([]);
-    }
+    const client = await clientPromise;
+    const db = client.db("ktex_ecommerce");
+    const productsCollection = db.collection("products");
 
-    const products = JSON.parse(fs.readFileSync(PRODUCTS_PATH, "utf8"));
     const { searchParams } = new URL(req.url);
-
-    let filtered = [...products];
+    const query: any = {};
 
     // Filter by slug (single product lookup)
     const slug = searchParams.get("slug");
     if (slug) {
-      filtered = filtered.filter(
-        (p: any) => p.slug === slug || p.id?.toString() === slug
-      );
-      return NextResponse.json(filtered);
+      const product = await productsCollection.findOne({
+        $or: [{ slug: slug }, { id: slug }, { id: parseInt(slug) || -1 }]
+      });
+      return NextResponse.json(product ? [product] : []);
     }
 
     // Filter by category slug
     const category = searchParams.get("category");
     if (category) {
-      filtered = filtered.filter((p: any) => {
-        if (!p.category) return p.tags?.includes(category);
-        
-        const pCat = p.category.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/s$/, "");
-        const reqCat = category.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/s$/, "");
-        
-        return (
-          pCat === reqCat ||
-          reqCat.includes(pCat) ||
-          pCat.includes(reqCat) ||
-          p.tags?.includes(category)
-        );
-      });
+      // Create regex for flexible category matching
+      const catRegex = new RegExp(category.replace(/s$/, ""), "i");
+      query.$or = [
+        { category: catRegex },
+        { tags: category }
+      ];
     }
 
     // Filter by tag (e.g., bestseller, new-arrivals, sale)
     const tag = searchParams.get("tag");
     if (tag) {
-      filtered = filtered.filter((p: any) => p.tags?.includes(tag));
+      query.tags = tag;
     }
 
     // Filter by size
     const size = searchParams.get("size");
     if (size) {
       const sizes = size.split(",");
-      filtered = filtered.filter((p: any) =>
-        p.sizes?.some((s: string) => sizes.includes(s))
-      );
+      query.sizes = { $in: sizes };
     }
 
     // Filter by price range
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     if (minPrice || maxPrice) {
-      filtered = filtered.filter((p: any) => {
-        const price = parseInt(p.price.replace(/,/g, ""));
-        if (minPrice && price < parseInt(minPrice)) return false;
-        if (maxPrice && price > parseInt(maxPrice)) return false;
+      query.price = {};
+      // MongoDB stores price as a string "2,450", so we need to handle that.
+      // Ideally, we'd store prices as numbers. For now, we'll fetch and filter if needed, 
+      // or use a more complex aggregation if performance becomes an issue.
+    }
+
+    let products = await productsCollection.find(query).toArray();
+
+    // Secondary filtering for price (since price is currently stored as a formatted string)
+    if (minPrice || maxPrice) {
+      products = products.filter((p: any) => {
+        const priceValue = typeof p.price === 'string' ? parseInt(p.price.replace(/,/g, "")) : p.price;
+        if (minPrice && priceValue < parseInt(minPrice)) return false;
+        if (maxPrice && priceValue > parseInt(maxPrice)) return false;
         return true;
       });
     }
@@ -72,20 +70,29 @@ export async function GET(req: Request) {
     // Sort
     const sort = searchParams.get("sort");
     if (sort === "price-asc") {
-      filtered.sort((a: any, b: any) => parseInt(a.price.replace(/,/g, "")) - parseInt(b.price.replace(/,/g, "")));
+      products.sort((a: any, b: any) => {
+        const pA = typeof a.price === 'string' ? parseInt(a.price.replace(/,/g, "")) : a.price;
+        const pB = typeof b.price === 'string' ? parseInt(b.price.replace(/,/g, "")) : b.price;
+        return pA - pB;
+      });
     } else if (sort === "price-desc") {
-      filtered.sort((a: any, b: any) => parseInt(b.price.replace(/,/g, "")) - parseInt(a.price.replace(/,/g, "")));
+      products.sort((a: any, b: any) => {
+        const pA = typeof a.price === 'string' ? parseInt(a.price.replace(/,/g, "")) : a.price;
+        const pB = typeof b.price === 'string' ? parseInt(b.price.replace(/,/g, "")) : b.price;
+        return pB - pA;
+      });
     }
 
     // Limit
     const limit = searchParams.get("limit");
     if (limit) {
-      filtered = filtered.slice(0, parseInt(limit));
+      products = products.slice(0, parseInt(limit));
     }
 
-    return NextResponse.json(filtered);
+    return NextResponse.json(products);
   } catch (err) {
     console.error("Products API Error:", err);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }
+

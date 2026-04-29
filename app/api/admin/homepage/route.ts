@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import clientPromise from "@/lib/mongodb";
 
-const HOMEPAGE_PATH = path.join(process.cwd(), "scratch", "homepage.json");
+export const dynamic = "force-dynamic";
 
-function getHomepage() {
-  if (!fs.existsSync(HOMEPAGE_PATH)) return {};
-  return JSON.parse(fs.readFileSync(HOMEPAGE_PATH, "utf8"));
-}
-
-function saveHomepage(data: any) {
-  fs.writeFileSync(HOMEPAGE_PATH, JSON.stringify(data, null, 2));
+async function getCollection() {
+  const client = await clientPromise;
+  const db = client.db("ktex_ecommerce");
+  return db.collection("settings");
 }
 
 export async function GET() {
   try {
-    return NextResponse.json(getHomepage());
+    const settingsCollection = await getCollection();
+    const homepage = await settingsCollection.findOne({ type: "homepage" });
+    return NextResponse.json(homepage || {});
   } catch {
     return NextResponse.json({}, { status: 500 });
   }
@@ -24,9 +22,17 @@ export async function GET() {
 export async function PUT(req: Request) {
   try {
     const data = await req.json();
-    saveHomepage(data);
+    const settingsCollection = await getCollection();
+    
+    await settingsCollection.updateOne(
+      { type: "homepage" },
+      { $set: { ...data, type: "homepage" } },
+      { upsert: true }
+    );
+    
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Failed to update homepage" }, { status: 500 });
   }
 }
+

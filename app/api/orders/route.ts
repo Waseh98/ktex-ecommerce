@@ -1,20 +1,7 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import clientPromise from "@/lib/mongodb";
 
-// Path to a temporary mock database file
-const DB_PATH = path.join(process.cwd(), "scratch", "orders.json");
-
-// Ensure scratch directory exists
-const SCRATCH_DIR = path.join(process.cwd(), "scratch");
-if (!fs.existsSync(SCRATCH_DIR)) {
-  fs.mkdirSync(SCRATCH_DIR, { recursive: true });
-}
-
-// Initialize DB if not exists
-if (!fs.existsSync(DB_PATH)) {
-  fs.writeFileSync(DB_PATH, JSON.stringify([]));
-}
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -33,10 +20,12 @@ export async function POST(req: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    // Save to mock database
-    const orders = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-    orders.push(newOrder);
-    fs.writeFileSync(DB_PATH, JSON.stringify(orders, null, 2));
+    // Save to MongoDB
+    const client = await clientPromise;
+    const db = client.db("ktex_ecommerce");
+    const ordersCollection = db.collection("orders");
+    
+    await ordersCollection.insertOne(newOrder);
 
     // In a real PayMob/JazzCash integration, you would call their API here
     // to get a transaction token and then return their payment URL.
@@ -56,3 +45,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

@@ -35,10 +35,19 @@ const InventoryPage = () => {
   const fetchInventory = async () => {
     try {
       const res = await fetch("/api/admin/products");
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}`);
+      }
       const data = await res.json();
-      setItems(data);
+      if (Array.isArray(data)) {
+        setItems(data);
+      } else {
+        console.error("API returned non-array data:", data);
+        setItems([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch inventory:", err);
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -103,10 +112,12 @@ const InventoryPage = () => {
     setIsModalOpen(true);
   };
 
-  const filteredItems = items.filter(item => 
-    item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = items
+    .filter(item => item && typeof item === 'object')
+    .filter(item => 
+      (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.category || "").toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

@@ -17,19 +17,30 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/admin/orders");
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}`);
+      }
       const data = await res.json();
-      setOrders(data);
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        console.error("API returned non-array data:", data);
+        setOrders([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch orders:", err);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredOrders = orders.filter(order => 
-    order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.shippingInfo.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOrders = orders
+    .filter(order => order && typeof order === 'object')
+    .filter(order => 
+      (order.orderId || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.shippingInfo?.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const getStatusColor = (status: string) => {
     switch (status) {
