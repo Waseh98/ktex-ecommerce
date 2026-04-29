@@ -151,6 +151,7 @@ async function pushToGithub() {
 
     // 5. Commit
     console.log('💾 Creating commit...');
+    const timestamp = new Date().toLocaleString();
     const sha = await git.commit({
       fs,
       dir,
@@ -158,7 +159,7 @@ async function pushToGithub() {
         name: 'Waseh98',
         email: 'waseh98@users.noreply.github.com',
       },
-      message: 'K-TEX Fix: Robust null-checking and database seeding error handling\n\n- Added null-checks to inventory and orders pages\n- Added try-catch to database seeding in API routes\n- Improved error reporting in Admin API',
+      message: `K-TEX Update: ${timestamp}\n\n- Applied latest stability and dynamic CMS fixes.`,
     });
     console.log(`   Commit SHA: ${sha.slice(0, 8)}`);
 
