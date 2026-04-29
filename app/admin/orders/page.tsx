@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Package, Search, Calendar, CreditCard, ChevronRight, LayoutDashboard, ShoppingCart, Users, Settings, Trash2 } from "lucide-react";
+import { Package, Search, Calendar, CreditCard, ChevronRight, LayoutDashboard, ShoppingCart, Users, Settings, Trash2, X, LogOut } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 
@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -192,11 +193,24 @@ const AdminDashboard = () => {
   };
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[110] lg:hidden backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-primary text-white hidden lg:flex flex-col">
-        <div className="p-8">
-           <Logo className="h-8" invert />
-           <p className="text-[10px] uppercase tracking-widest opacity-50 mt-2">Admin Panel</p>
+      <aside className={`fixed inset-y-0 left-0 w-64 bg-primary text-white z-[120] transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col`}>
+        <div className="p-8 flex justify-between items-center">
+           <div>
+             <Logo className="h-8" invert />
+             <p className="text-[10px] uppercase tracking-widest opacity-50 mt-2">Admin Panel</p>
+           </div>
+           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white/50 hover:text-white">
+             <X size={20} />
+           </button>
         </div>
         
         <nav className="flex-1 px-4 space-y-2 mt-8">
@@ -224,35 +238,48 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-100 p-8 flex justify-between items-center sticky top-0 z-10">
-           <h2 className="text-2xl font-serif">Manage Orders</h2>
-           <div className="flex items-center space-x-4">
-              <button 
-                onClick={exportToCSV}
-                className="flex items-center space-x-2 px-4 py-2 border border-gray-100 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors"
-              >
-                <span>Export to Excel</span>
+      <main className="flex-1 overflow-y-auto w-full">
+        <header className="bg-white border-b border-gray-100 p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center sticky top-0 z-10 gap-4">
+           <div className="flex items-center justify-between w-full sm:w-auto">
+              <div className="flex items-center space-x-4">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 bg-gray-50 rounded-lg text-primary"
+                >
+                  <LayoutDashboard size={20} />
+                </button>
+                <h2 className="text-xl md:text-2xl font-serif">Orders</h2>
+              </div>
+              <button onClick={fetchOrders} className="sm:hidden p-2 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors">
+                 <Calendar size={18} className="text-gray-600" />
               </button>
-              <div className="relative">
+           </div>
+           <div className="flex items-center space-x-2 md:space-x-4 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                  <input 
                     type="text" 
-                    placeholder="Search Order ID or Email..." 
-                    className="pl-10 pr-4 py-2 border border-gray-100 rounded-lg text-sm focus:outline-none focus:border-secondary transition-colors"
+                    placeholder="Search..." 
+                    className="pl-10 pr-4 py-2 border border-gray-100 rounded-lg text-sm w-full sm:w-48 md:w-64 focus:outline-none focus:border-secondary transition-colors"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                  />
               </div>
-              <button onClick={fetchOrders} className="p-2 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors">
+              <button 
+                onClick={exportToCSV}
+                className="hidden md:flex items-center space-x-2 px-4 py-2 border border-gray-100 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors"
+              >
+                <span>Export</span>
+              </button>
+              <button onClick={fetchOrders} className="hidden sm:block p-2 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors">
                  <Calendar size={18} className="text-gray-600" />
               </button>
            </div>
         </header>
 
-        <div className="p-8">
+        <div className="p-4 md:p-8">
            {/* Stats Overview */}
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50">
                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Total Orders</p>
                  <p className="text-3xl font-bold">{orders.length}</p>
@@ -268,8 +295,8 @@ const AdminDashboard = () => {
            </div>
 
            {/* Orders Table */}
-           <div className="bg-white rounded-2xl shadow-sm border border-gray-50 overflow-hidden">
-              <table className="w-full text-left">
+           <div className="bg-white rounded-2xl shadow-sm border border-gray-50 overflow-x-auto">
+              <table className="w-full text-left min-w-[800px]">
                  <thead className="bg-zinc-50 border-b border-gray-100">
                     <tr>
                        <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">Order ID</th>
