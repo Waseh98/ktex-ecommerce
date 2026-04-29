@@ -110,12 +110,12 @@ const Header = () => {
 
                   return (
                     <div
-                      className="fixed left-0 w-screen bg-white border-t border-gray-100 shadow-lg z-50 animate-fadeDown"
+                      className="fixed left-0 w-screen bg-white border-t border-gray-100 shadow-2xl z-50 animate-fadeDown"
                       style={{ top: "64px" }}
                       onMouseEnter={() => handleMenuEnter(item.label)}
                       onMouseLeave={handleMenuLeave}
                     >
-                      <div className="max-w-[1200px] mx-auto px-6 py-4 max-h-[70vh] overflow-y-auto">
+                      <div className="max-w-[1400px] mx-auto px-8 py-10 max-h-[85vh] overflow-y-auto scrollbar-hide">
                         {/* Top row: quick links */}
                         {specialLinks.length > 0 && (
                           <div className="flex items-center gap-5 mb-4 pb-3 border-b border-gray-100">
@@ -137,7 +137,7 @@ const Header = () => {
                         )}
 
                         {/* Category grid — Responsive multi-column layout */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-x-6 gap-y-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-10 gap-y-10">
                           {categoryGroups.map((cat) => {
                             const subs = cat.subcategories!;
 
