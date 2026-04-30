@@ -4,11 +4,11 @@ export const BRAND = {
   tagline: "Premium Pakistani Menswear",
   description:
     "Experience the pinnacle of South Asian luxury. K-TEX merges centuries-old craftsmanship with modern silhouettes to create timeless menswear for the discerning gentleman.",
-  email: "care@k-tex.pk",
-  phone: "+92 21 111 222 333",
-  whatsapp: "+92 300 1234567",
-  whatsappLink: "https://wa.me/923001234567",
-  address: "Plot #123, Sector G-4, Korangi Industrial Area, Karachi, Pakistan",
+  email: "abdulwasay@khm.ae",
+  phone: "03330557783",
+  whatsapp: "03330557783",
+  whatsappLink: "https://wa.me/923330557783",
+  address: "KHM Group, Moza Dohala, Islamabad - Murree Expy, near Phulgran Toll Plaza, Islamabad",
   social: {
     instagram: "https://instagram.com/ktex",
     facebook: "https://facebook.com/ktex",
