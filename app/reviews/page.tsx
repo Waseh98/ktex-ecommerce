@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Star, MessageSquare, ThumbsUp, CheckCircle2, Search, Filter } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 interface Review { 
   id: number; 
@@ -46,7 +44,6 @@ export default function ReviewsPage() {
 
   return (
     <main className="bg-white min-h-screen">
-      <Header />
       
       {/* Hero Header */}
       <section className="bg-primary text-white py-16 md:py-24 relative overflow-hidden">
@@ -263,8 +260,6 @@ export default function ReviewsPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
 
       <style jsx>{`
         @keyframes fadeIn {
