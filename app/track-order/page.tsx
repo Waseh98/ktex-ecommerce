@@ -56,9 +56,13 @@ function TrackOrderContent() {
     }
   };
 
-  const handleTrack = (e: React.FormEvent) => {
-    e.preventDefault();
-    performTrack(orderId, email);
+  const handleTrack = () => {
+    if (!orderId.trim() || !email.trim()) return;
+    performTrack(orderId.trim(), email.trim());
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleTrack();
   };
 
   const steps = [
@@ -95,17 +99,17 @@ function TrackOrderContent() {
         <div className="max-w-4xl mx-auto">
           {/* Tracking Form */}
           <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 mb-10">
-            <form onSubmit={handleTrack} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div className="md:col-span-1 space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-1">Order ID</label>
                 <div className="relative">
                   <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                   <input 
                     type="text" 
-                    required
                     placeholder="e.g. KTX-12345"
                     value={orderId}
                     onChange={(e) => setOrderId(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-secondary/20 transition-all"
                   />
                 </div>
@@ -116,16 +120,17 @@ function TrackOrderContent() {
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                   <input 
                     type="email" 
-                    required
                     placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-secondary/20 transition-all"
                   />
                 </div>
               </div>
               <button 
-                type="submit"
+                type="button"
+                onClick={handleTrack}
                 disabled={loading}
                 className="bg-primary text-white py-4 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-secondary transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
@@ -138,7 +143,7 @@ function TrackOrderContent() {
                   </>
                 )}
               </button>
-            </form>
+            </div>
 
             {error && (
               <div className="mt-8 p-4 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-3 text-red-600 text-sm animate-[fadeIn_0.3s_ease-out]">
@@ -280,7 +285,7 @@ function TrackOrderContent() {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
