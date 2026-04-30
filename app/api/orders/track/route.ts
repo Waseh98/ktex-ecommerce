@@ -20,16 +20,29 @@ export async function GET(req: Request) {
     const db = client.db("ktex_ecommerce");
     const ordersCollection = db.collection("orders");
 
-    // Search for the order. We normalize the ID in case user enters it differently.
+    console.log(`Tracking attempt - ID: ${orderId}, Email: ${email}`);
+
+    // Flexible query:
+    // 1. Matches exact Order ID
+    // 2. Matches ID without # prefix
+    // 3. Case-insensitive email match
     const query = {
-      $or: [
-        { orderId: orderId },
-        { orderId: orderId.startsWith("#") ? orderId.substring(1) : orderId }
-      ],
-      "shippingInfo.email": email
+      $and: [
+        {
+          $or: [
+            { orderId: orderId },
+            { orderId: orderId.startsWith("#") ? orderId.substring(1) : orderId },
+            { orderId: { $regex: new RegExp(orderId.replace("#", ""), "i") } }
+          ]
+        },
+        { 
+          "shippingInfo.email": { $regex: new RegExp(`^${email}$`, "i") } 
+        }
+      ]
     };
 
     const order = await ordersCollection.findOne(query);
+    console.log(`Order search result: ${order ? "Found" : "Not Found"}`);
 
     if (!order) {
       return NextResponse.json(

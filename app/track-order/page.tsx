@@ -27,6 +27,7 @@ export default function TrackOrderPage() {
 
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Track button clicked! ID:", orderId, "Email:", email);
     setLoading(true);
     setError("");
     setOrder(null);
