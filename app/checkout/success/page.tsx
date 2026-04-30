@@ -7,6 +7,7 @@ import { CheckCircle2, Package, Mail, ShoppingBag, ArrowRight } from "lucide-rea
 const SuccessContent = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const email = searchParams.get("email");
   return (
     <div className="container-wide py-20 max-w-2xl mx-auto text-center">
       <div className="mb-6 flex justify-center">
@@ -19,9 +20,18 @@ const SuccessContent = () => {
           <div><p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Order Number</p><p className="text-sm font-bold font-mono">{orderId}</p></div>
           <span className="text-[10px] font-bold text-green-600 bg-green-50 px-3 py-1 uppercase tracking-wider">Processing</span>
         </div>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="flex gap-3"><Package size={18} className="text-secondary flex-shrink-0" /><div><p className="text-[11px] font-bold mb-1">Tracking</p><p className="text-[12px] text-gray-500">You'll receive tracking info via email.</p></div></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex gap-3"><Package size={18} className="text-secondary flex-shrink-0" /><div><p className="text-[11px] font-bold mb-1">Tracking</p><p className="text-[12px] text-gray-500">You can track your journey in real-time below.</p></div></div>
           <div className="flex gap-3"><Mail size={18} className="text-secondary flex-shrink-0" /><div><p className="text-[11px] font-bold mb-1">Support</p><p className="text-[12px] text-gray-500">Contact care@k-tex.pk for help.</p></div></div>
+        </div>
+        <div className="mt-8">
+           <Link 
+            href={`/track-order?orderId=${encodeURIComponent(orderId || "")}&email=${encodeURIComponent(email || "")}`}
+            className="w-full bg-secondary text-white py-4 rounded-xl text-[11px] font-bold uppercase tracking-widest hover:bg-primary transition-all flex items-center justify-center gap-2 shadow-lg shadow-secondary/20"
+           >
+              <span>Track Your Order Now</span>
+              <ArrowRight size={14} />
+           </Link>
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">

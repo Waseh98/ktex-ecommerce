@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search, Package, Clock, CheckCircle2, Truck, AlertCircle, ShoppingBag, MapPin, Calendar } from "lucide-react";
+import { Search, Package, Clock, CheckCircle2, Truck, AlertCircle, ShoppingBag, MapPin, Calendar, ExternalLink } from "lucide-react";
 
 interface OrderStatus {
   orderId: string;
@@ -11,6 +12,8 @@ interface OrderStatus {
   total: number;
   createdAt: string;
   itemsCount: number;
+  courier?: string;
+  trackingNumber?: string;
   shippingInfo: {
     firstName: string;
     lastName: string;
@@ -18,22 +21,27 @@ interface OrderStatus {
   };
 }
 
-export default function TrackOrderPage() {
-  const [orderId, setOrderId] = useState("");
-  const [email, setEmail] = useState("");
+function TrackOrderContent() {
+  const searchParams = useSearchParams();
+  const [orderId, setOrderId] = useState(searchParams.get("orderId") || "");
+  const [email, setEmail] = useState(searchParams.get("email") || "");
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<OrderStatus | null>(null);
   const [error, setError] = useState("");
 
-  const handleTrack = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Track button clicked! ID:", orderId, "Email:", email);
+  useEffect(() => {
+    if (searchParams.get("orderId") && searchParams.get("email")) {
+      performTrack(searchParams.get("orderId")!, searchParams.get("email")!);
+    }
+  }, [searchParams]);
+
+  const performTrack = async (id: string, mail: string) => {
     setLoading(true);
     setError("");
     setOrder(null);
 
     try {
-      const res = await fetch(`/api/orders/track?orderId=${orderId}&email=${email}`);
+      const res = await fetch(`/api/orders/track?orderId=${encodeURIComponent(id)}&email=${encodeURIComponent(mail)}`);
       const data = await res.json();
 
       if (data.success) {
@@ -46,6 +54,11 @@ export default function TrackOrderPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTrack = (e: React.FormEvent) => {
+    e.preventDefault();
+    performTrack(orderId, email);
   };
 
   const steps = [
@@ -224,6 +237,35 @@ export default function TrackOrderPage() {
                 </div>
               </div>
 
+              {/* Courier Tracking Section */}
+              {order.statusKey === "SHIPPED" && order.trackingNumber && (
+                <div className="bg-secondary/5 border border-secondary/20 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 bg-secondary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-secondary/20">
+                      <Truck size={28} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Shipping via {order.courier || "Premium Courier"}</p>
+                      <h3 className="text-xl font-bold text-primary">Tracking ID: {order.trackingNumber}</h3>
+                    </div>
+                  </div>
+                  <a 
+                    href={
+                      order.courier?.toLowerCase().includes("trax") ? `https://trax.pk/tracking?tracking_number=${order.trackingNumber}` :
+                      order.courier?.toLowerCase().includes("leopard") ? `https://www.leopardscourier.com/tracking?track_number=${order.trackingNumber}` :
+                      order.courier?.toLowerCase().includes("tcs") ? `https://www.tcsexpress.com/track-results?tracking_number=${order.trackingNumber}` :
+                      "#"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-primary text-white px-8 py-4 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-secondary transition-all shadow-lg flex items-center gap-2"
+                  >
+                    <span>Track on Courier Site</span>
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              )}
+
               <div className="text-center pt-8">
                 <p className="text-sm text-gray-400 mb-4">Need help with your order?</p>
                 <Link 
@@ -245,5 +287,13 @@ export default function TrackOrderPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <TrackOrderContent />
+    </Suspense>
   );
 }

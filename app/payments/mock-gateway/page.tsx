@@ -9,6 +9,7 @@ const MockPaymentGateway = () => {
   const router = useRouter();
   const orderId = searchParams.get("orderId");
   const amount = searchParams.get("amount");
+  const email = searchParams.get("email");
   const [method, setMethod] = useState("card");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -36,7 +37,7 @@ const MockPaymentGateway = () => {
 
       if (response.ok) {
         if (status === "success") {
-          router.push(`/checkout/success?orderId=${orderId}`);
+          router.push(`/checkout/success?orderId=${orderId}&email=${email}`);
         } else {
           alert("Payment Failed. Please try again.");
           setIsProcessing(false);

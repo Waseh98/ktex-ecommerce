@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const orderId = searchParams.get("orderId");
-    const email = searchParams.get("email");
+    const rawOrderId = searchParams.get("orderId")?.trim() || "";
+    const rawEmail = searchParams.get("email")?.trim() || "";
 
-    if (!orderId || !email) {
+    if (!rawOrderId || !rawEmail) {
       return NextResponse.json(
         { success: false, message: "Order ID and Email are required" },
         { status: 400 }
@@ -20,29 +20,29 @@ export async function GET(req: Request) {
     const db = client.db("ktex_ecommerce");
     const ordersCollection = db.collection("orders");
 
-    console.log(`Tracking attempt - ID: ${orderId}, Email: ${email}`);
+    console.log(`[DEBUG] Tracking attempt - ID: "${rawOrderId}", Email: "${rawEmail}"`);
+
+    // Clean orderId (remove # if present)
+    const cleanId = rawOrderId.replace(/^#/, "");
 
     // Flexible query:
-    // 1. Matches exact Order ID
-    // 2. Matches ID without # prefix
-    // 3. Case-insensitive email match
     const query = {
       $and: [
         {
           $or: [
-            { orderId: orderId },
-            { orderId: orderId.startsWith("#") ? orderId.substring(1) : orderId },
-            { orderId: { $regex: new RegExp(orderId.replace("#", ""), "i") } }
+            { orderId: cleanId },
+            { orderId: `KTX-${cleanId}` },
+            { orderId: { $regex: new RegExp(`^${cleanId}$`, "i") } }
           ]
         },
         { 
-          "shippingInfo.email": { $regex: new RegExp(`^${email}$`, "i") } 
+          "shippingInfo.email": { $regex: new RegExp(`^${rawEmail}$`, "i") } 
         }
       ]
     };
 
     const order = await ordersCollection.findOne(query);
-    console.log(`Order search result: ${order ? "Found" : "Not Found"}`);
+    console.log(`[DEBUG] Order search result: ${order ? "Found" : "Not Found"}`);
 
     if (!order) {
       return NextResponse.json(
@@ -70,6 +70,8 @@ export async function GET(req: Request) {
         total: order.total,
         createdAt: order.createdAt,
         itemsCount: order.items?.length || 0,
+        courier: order.courier,
+        trackingNumber: order.trackingNumber,
         shippingInfo: {
           firstName: order.shippingInfo.firstName,
           lastName: order.shippingInfo.lastName,

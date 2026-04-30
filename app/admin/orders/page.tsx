@@ -161,7 +161,7 @@ const AdminDashboard = () => {
     printWindow.print();
   };
 
-  const updateOrder = async (orderId: string, updates: { notes?: string, status?: string }) => {
+  const updateOrder = async (orderId: string, updates: { notes?: string, status?: string, courier?: string, trackingNumber?: string }) => {
     try {
       const res = await fetch("/api/admin/orders", {
         method: "PATCH",
@@ -356,6 +356,31 @@ const AdminDashboard = () => {
                                <option value="CANCELLED">Cancelled</option>
                                <option value="FAILED">Failed</option>
                             </select>
+
+                            {order.status === "SHIPPED" && (
+                              <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-[8px] font-bold uppercase text-gray-400">Courier</p>
+                                  <input 
+                                    type="text" 
+                                    placeholder="e.g. Trax, Leopards"
+                                    defaultValue={order.courier}
+                                    onBlur={(e) => updateOrder(order.orderId, { courier: e.target.value })}
+                                    className="text-[9px] px-2 py-1 bg-zinc-100 border-none rounded focus:ring-1 focus:ring-secondary/30 outline-none"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-[8px] font-bold uppercase text-gray-400">Tracking #</p>
+                                  <input 
+                                    type="text" 
+                                    placeholder="Tracking ID"
+                                    defaultValue={order.trackingNumber}
+                                    onBlur={(e) => updateOrder(order.orderId, { trackingNumber: e.target.value })}
+                                    className="text-[9px] px-2 py-1 bg-zinc-100 border-none rounded focus:ring-1 focus:ring-secondary/30 outline-none"
+                                  />
+                                </div>
+                              </div>
+                            )}
                          </td>
                           <td className="px-8 py-6 text-right">
                              <div className="flex items-center justify-end space-x-2">

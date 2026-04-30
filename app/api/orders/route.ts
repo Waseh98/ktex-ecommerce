@@ -8,8 +8,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { items, shippingInfo, total } = body;
 
-    // Generate a unique Order ID
-    const orderId = `KTX-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    // Generate a unique Order ID (e.g., KTX-482910)
+    const orderId = `KTX-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const newOrder = {
       orderId,
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     // In a real PayMob/JazzCash integration, you would call their API here
     // to get a transaction token and then return their payment URL.
     // For now, we return our mock gateway URL.
-    const paymentUrl = `/payments/mock-gateway?orderId=${orderId}&amount=${total}`;
+    const paymentUrl = `/payments/mock-gateway?orderId=${orderId}&amount=${total}&email=${shippingInfo.email}`;
 
     return NextResponse.json({
       success: true,

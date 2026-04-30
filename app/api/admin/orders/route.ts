@@ -27,12 +27,14 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const { orderId, notes, status } = await req.json();
+    const { orderId, notes, status, courier, trackingNumber } = await req.json();
     const ordersCollection = await getCollection();
 
     const updateData: any = {};
     if (notes !== undefined) updateData.notes = notes;
     if (status !== undefined) updateData.status = status;
+    if (courier !== undefined) updateData.courier = courier;
+    if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
 
     const result = await ordersCollection.updateOne(
       { orderId: orderId },
