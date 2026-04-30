@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Save, Plus, X, Video, Image as ImageIcon, Megaphone, LogOut, Trash2, Upload } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Save, Plus, X, Video, Image as ImageIcon, Megaphone, LogOut, Trash2, Upload, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 
