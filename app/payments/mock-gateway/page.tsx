@@ -15,16 +15,24 @@ const MockPaymentGateway = () => {
   const handlePayment = async (status: "success" | "failure") => {
     setIsProcessing(true);
     
-    // Simulate network delay
-    await new Promise(r => setTimeout(r, 2000));
-
-    // Call the webhook
     try {
+      // Simulate network delay
+      await new Promise(r => setTimeout(r, 2000));
+
+      // Use AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       const response = await fetch("/api/payments/webhook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId, status }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
 
       if (response.ok) {
         if (status === "success") {
@@ -33,10 +41,13 @@ const MockPaymentGateway = () => {
           alert("Payment Failed. Please try again.");
           setIsProcessing(false);
         }
+      } else {
+        alert(data.message || "Payment verification failed. Please contact support.");
+        setIsProcessing(false);
       }
     } catch (error) {
       console.error("Webhook Error:", error);
-      alert("Something went wrong.");
+      alert("Network error. Please check your connection and try again.");
       setIsProcessing(false);
     }
   };

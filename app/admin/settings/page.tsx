@@ -14,7 +14,7 @@ const AdminSettings = () => {
   const [settings, setSettings] = useState({
     announcement: "",
     videoUrl: "",
-    heroSlides: [] as { image: string, title: string, subtitle: string, link: string }[],
+    heroSlides: [] as { image: string, mobileImage?: string, title: string, subtitle: string, link: string }[],
     brandStatement: "",
     categoryTiles: [] as { label: string, slug: string, image: string }[],
     shopTheLook: {
@@ -365,43 +365,88 @@ const AdminSettings = () => {
                           <X size={14} />
                        </button>
                        
-                       <div className="w-full md:w-48 aspect-[16/9] bg-white rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center relative shrink-0">
-                          {slide.image ? (
-                             <>
-                                <img src={slide.image} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                   <div className="relative">
-                                      <input 
-                                        type="file" 
-                                        className="absolute inset-0 opacity-0 cursor-pointer" 
-                                        onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
-                                           const newSlides = [...settings.heroSlides];
-                                           newSlides[idx].image = url;
-                                           setSettings({...settings, heroSlides: newSlides});
-                                        })}
-                                      />
-                                      <button className="bg-white text-primary p-2 rounded-full shadow-lg">
-                                         <Upload size={16} />
-                                      </button>
-                                   </div>
-                                </div>
-                             </>
-                          ) : (
-                             <div className="text-center p-4">
-                                <ImageIcon size={24} className="text-gray-300 mx-auto mb-2" />
-                                <input 
-                                  type="file" 
-                                  className="absolute inset-0 opacity-0 cursor-pointer" 
-                                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
-                                     const newSlides = [...settings.heroSlides];
-                                     newSlides[idx].image = url;
-                                     setSettings({...settings, heroSlides: newSlides});
-                                  })}
-                                />
-                                <span className="text-[10px] text-gray-400 font-bold uppercase">Upload Image</span>
-                             </div>
-                          )}
-                       </div>
+                        <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+                           {/* Desktop Image */}
+                           <div className="w-full md:w-48 aspect-[16/9] bg-white rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center relative group/img">
+                              {slide.image ? (
+                                 <>
+                                    <img src={slide.image} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                       <div className="relative">
+                                          <input 
+                                            type="file" 
+                                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                                            onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                               const newSlides = [...settings.heroSlides];
+                                               newSlides[idx].image = url;
+                                               setSettings({...settings, heroSlides: newSlides});
+                                          })}
+                                          />
+                                          <button className="bg-white text-primary p-2 rounded-full shadow-lg">
+                                             <Upload size={16} />
+                                          </button>
+                                       </div>
+                                    </div>
+                                    <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] px-1.5 py-0.5 rounded uppercase font-bold">Desktop</div>
+                                 </>
+                              ) : (
+                                 <div className="text-center p-4">
+                                    <ImageIcon size={24} className="text-gray-300 mx-auto mb-2" />
+                                    <input 
+                                      type="file" 
+                                      className="absolute inset-0 opacity-0 cursor-pointer" 
+                                      onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                         const newSlides = [...settings.heroSlides];
+                                         newSlides[idx].image = url;
+                                         setSettings({...settings, heroSlides: newSlides});
+                                      })}
+                                    />
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase">Upload Desktop</span>
+                                 </div>
+                              )}
+                           </div>
+
+                           {/* Mobile Image */}
+                           <div className="w-full sm:w-24 aspect-[9/16] bg-white rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center relative group/img">
+                              {slide.mobileImage ? (
+                                 <>
+                                    <img src={slide.mobileImage} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                       <div className="relative">
+                                          <input 
+                                            type="file" 
+                                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                                            onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                               const newSlides = [...settings.heroSlides];
+                                               newSlides[idx].mobileImage = url;
+                                               setSettings({...settings, heroSlides: newSlides});
+                                          })}
+                                          />
+                                          <button className="bg-white text-primary p-2 rounded-full shadow-lg">
+                                             <Upload size={16} />
+                                          </button>
+                                       </div>
+                                    </div>
+                                    <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] px-1.5 py-0.5 rounded uppercase font-bold">Mobile</div>
+                                 </>
+                              ) : (
+                                 <div className="text-center p-4">
+                                    <ImageIcon size={20} className="text-gray-300 mx-auto mb-2" />
+                                    <input 
+                                      type="file" 
+                                      className="absolute inset-0 opacity-0 cursor-pointer" 
+                                      onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], (url) => {
+                                         const newSlides = [...settings.heroSlides];
+                                         newSlides[idx].mobileImage = url;
+                                         setSettings({...settings, heroSlides: newSlides});
+                                      })}
+                                    />
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase">Upload Mobile</span>
+                                 </div>
+                              )}
+                           </div>
+                        </div>
+
                        
                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="col-span-1">

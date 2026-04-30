@@ -1,0 +1,8 @@
+[
+  {"id": 1, "name": "Anonymous", "rating": 5, "text": "Brumano products are of outstanding quality and are truly worth the price.", "product": "Charcoal Bomber Jacket", "date": "2026-03-15", "visible": true},
+  {"id": 2, "name": "Umair Younas", "rating": 5, "text": "A real brand. Experience from unboxing to wearing was good. Recommended", "product": "", "date": "2026-03-10", "visible": true},
+  {"id": 3, "name": "Muhammad Abdullah Khan", "rating": 5, "text": "Great fabric, great color and perfect size", "product": "", "date": "2026-02-28", "visible": true},
+  {"id": 4, "name": "Subhan Ayaz", "rating": 5, "text": "Best quality and budget", "product": "", "date": "2026-02-20", "visible": true},
+  {"id": 5, "name": "Mohammad Akabir", "rating": 5, "text": "Excellent quality.", "product": "", "date": "2026-02-15", "visible": true},
+  {"id": 6, "name": "Obaid", "rating": 4, "text": "Good buy 👍", "product": "", "date": "2026-02-10", "visible": true}
+]

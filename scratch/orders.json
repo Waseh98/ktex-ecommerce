@@ -1,0 +1,77 @@
+[
+  {
+    "orderId": "KTX-1776922029423-427",
+    "items": [
+      {
+        "id": 1,
+        "name": "Charcoal Gold Zari Velvet Suit",
+        "price": "PKR 18,500",
+        "image": "/images/bestseller-1.png",
+        "quantity": 1,
+        "size": "M",
+        "color": "Charcoal"
+      }
+    ],
+    "shippingInfo": {
+      "address": "House 123, Street 456, Karachi, Pakistan",
+      "email": "customer@example.com"
+    },
+    "total": "18,500",
+    "status": "PAID",
+    "createdAt": "2026-04-23T05:27:09.425Z",
+    "updatedAt": "2026-04-23T05:28:22.156Z"
+  },
+  {
+    "orderId": "KTX-1776922346634-959",
+    "items": [
+      {
+        "id": 1,
+        "name": "Charcoal Gold Zari Velvet Suit",
+        "price": "PKR 18,500",
+        "image": "/images/bestseller-1.png",
+        "quantity": 1,
+        "size": "M",
+        "color": "Charcoal"
+      }
+    ],
+    "shippingInfo": {
+      "address": "House 123, Street 456, Karachi, Pakistan",
+      "email": "customer@example.com"
+    },
+    "total": "18,500",
+    "status": "PAID",
+    "createdAt": "2026-04-23T05:32:26.634Z",
+    "updatedAt": "2026-04-23T05:32:32.070Z"
+  },
+  {
+    "orderId": "KTX-1777368588556-27",
+    "items": [
+      {
+        "id": 2,
+        "name": "Olive Structured Polo With Cutaway Collar",
+        "price": "Rs. 5,290",
+        "image": "https://shopbrumano.com/cdn/shop/files/1_e1a23c26-0c72-4c0a-af7e-e8cb1e95e0ab.jpg?v=1745497979&width=600",
+        "quantity": 1,
+        "size": "M",
+        "color": "Olive"
+      },
+      {
+        "id": 18,
+        "name": "new shirt",
+        "price": "Rs. 22332",
+        "image": "",
+        "quantity": 1,
+        "size": "M",
+        "color": "Default"
+      }
+    ],
+    "shippingInfo": {
+      "address": "House 123, Street 456, Karachi, Pakistan",
+      "email": "customer@example.com"
+    },
+    "total": "27,622",
+    "status": "PAID",
+    "createdAt": "2026-04-28T09:29:48.556Z",
+    "updatedAt": "2026-04-28T09:29:57.249Z"
+  }
+]

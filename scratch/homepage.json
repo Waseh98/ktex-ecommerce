@@ -1,0 +1,33 @@
+{
+  "heroSlides": [
+    {
+      "id": 1,
+      "image": "https://shopbrumano.com/cdn/shop/files/2_422bbc91-79f1-4967-9610-cd0aa11ada83.jpg?v=1744893498&width=1920",
+      "headline": "New Season Arrivals",
+      "subtext": "Discover the latest in premium menswear",
+      "ctaText": "Shop Now",
+      "ctaLink": "/collection/new-arrivals"
+    },
+    {
+      "id": 2,
+      "image": "https://shopbrumano.com/cdn/shop/files/1_e1a23c26-0c72-4c0a-af7e-e8cb1e95e0ab.jpg?v=1745497979&width=1920",
+      "headline": "Summer Collection",
+      "subtext": "Effortless style for the season",
+      "ctaText": "Explore",
+      "ctaLink": "/collection/mens"
+    },
+    {
+      "id": 3,
+      "image": "https://shopbrumano.com/cdn/shop/files/1_7e8f19a8-68ec-43c5-87dd-c8c17ca1b40e.jpg?v=1745326587&width=1920",
+      "headline": "Premium Formals",
+      "subtext": "Tailored for excellence",
+      "ctaText": "Shop Formals",
+      "ctaLink": "/collection/formal-shirts"
+    }
+  ],
+  "shopTheLook": {
+    "image": "https://shopbrumano.com/cdn/shop/files/2_422bbc91-79f1-4967-9610-cd0aa11ada83.jpg?v=1744893498&width=1200",
+    "products": [1, 2]
+  },
+  "featuredProducts": [1, 2, 3, 4, 5, 6, 7, 8]
+}

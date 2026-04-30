@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Charcoal Gold Zari",
+    "fabric": "Embroidered Velvet",
+    "price": "PKR 18,500",
+    "stock": 45,
+    "category": "Festive Edit",
+    "image": "/images/bestseller-1.png"
+  },
+  {
+    "id": 2,
+    "name": "Forest Emerald Kurta",
+    "fabric": "Cotton Dobby",
+    "price": "PKR 12,900",
+    "stock": 12,
+    "category": "New In",
+    "image": "/images/bestseller-2.png"
+  },
+  {
+    "id": 3,
+    "name": "Blush Rose Lehenga",
+    "fabric": "Hand-worked Chiffon",
+    "price": "PKR 45,000",
+    "stock": 5,
+    "category": "Festive Edit",
+    "image": "/images/bestseller-3.png"
+  },
+  {
+    "id": 4,
+    "name": "Festive Gold Glow",
+    "fabric": "Raw Silk",
+    "price": "PKR 22,000",
+    "stock": 8,
+    "category": "Bestsellers",
+    "image": "/images/bestseller-4.png"
+  }
+]

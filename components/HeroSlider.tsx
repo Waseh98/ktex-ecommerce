@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 import Link from "next/link";
+import Image from "next/image";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
@@ -11,6 +12,7 @@ import "swiper/css/effect-fade";
 interface Slide {
   id: any;
   image: string;
+  mobileImage?: string;
   title: string;
   subtitle: string;
   link: string;
@@ -29,6 +31,7 @@ const HeroSlider = () => {
           const mappedSlides = data.heroSlides.map((s: any, idx: number) => ({
             id: s.id || idx,
             image: s.image || "",
+            mobileImage: s.mobileImage || "",
             title: s.title || s.headline || "",
             subtitle: s.subtitle || s.subtext || "",
             link: s.link || s.ctaLink || "/",
@@ -52,7 +55,7 @@ const HeroSlider = () => {
   ];
 
   return (
-    <section className="relative w-full overflow-hidden" style={{ height: "clamp(400px, 70vh, 700px)" }}>
+    <section className="relative w-full overflow-hidden h-auto aspect-[4/5] sm:aspect-square md:aspect-video md:h-[clamp(400px,70vh,700px)]">
       <Swiper
         key={finalSlides.length}
         modules={[Autoplay, Pagination, EffectFade]}
@@ -72,12 +75,34 @@ const HeroSlider = () => {
       >
         {finalSlides.map((slide, index) => (
           <SwiperSlide key={slide.id || index}>
-            <div className="relative w-full h-full">
-              {/* Background Image */}
-              <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[5000ms] ease-linear scale-105 group-hover:scale-100"
-                style={{ backgroundImage: `url(${slide.image})` }}
-              />
+            <div className="relative w-full h-full group">
+              {/* Background Image - Responsive */}
+              <div className="absolute inset-0 transition-transform duration-[5000ms] ease-linear scale-105 group-hover:scale-100">
+                {/* Desktop Image */}
+                <div className="hidden md:block relative w-full h-full">
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    fill
+                    className="object-cover object-center"
+                    priority={index === 0}
+                    sizes="100vw"
+                    quality={90}
+                  />
+                </div>
+                {/* Mobile Image */}
+                <div className="block md:hidden relative w-full h-full">
+                  <Image
+                    src={slide.mobileImage || slide.image}
+                    alt={slide.title}
+                    fill
+                    className="object-cover object-center"
+                    priority={index === 0}
+                    sizes="100vw"
+                    quality={80}
+                  />
+                </div>
+              </div>
               {/* Overlay */}
               <div className="absolute inset-0 bg-black/30" />
 
@@ -86,17 +111,17 @@ const HeroSlider = () => {
                 <div className="container-wide w-full px-4">
                   <div className="max-w-3xl mx-auto">
                     <h2
-                      className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight uppercase tracking-tight"
+                      className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-2 md:mb-4 leading-tight uppercase tracking-tight px-2"
                       style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
                     >
                       {slide.title}
                     </h2>
-                    <p className="text-white/90 text-sm md:text-xl mb-8 max-w-2xl mx-auto font-medium">
+                    <p className="text-white/90 text-[10px] sm:text-sm md:text-xl mb-4 md:mb-8 max-w-2xl mx-auto font-medium px-4">
                       {slide.subtitle}
                     </p>
                     <Link
                       href={slide.link || "/"}
-                      className="inline-block bg-white text-primary px-10 py-4 text-[12px] font-bold uppercase tracking-[0.2em] hover:bg-secondary hover:text-white transition-all duration-300 rounded-full shadow-xl"
+                      className="inline-block bg-white text-primary px-6 py-3 md:px-10 md:py-4 text-[10px] md:text-[12px] font-bold uppercase tracking-[0.2em] hover:bg-secondary hover:text-white transition-all duration-300 rounded-full shadow-xl"
                     >
                       Shop the Collection
                     </Link>
